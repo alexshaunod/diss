@@ -1,6 +1,7 @@
 #include <iostream>
 #include "opencv2/highgui/highgui.hpp"
 #include "screenobserver.h"
+#include "visualoverlay.h"
 
 using namespace cv;
 using namespace std;
@@ -9,8 +10,39 @@ using namespace std;
 int main()
 {
 	int i, j;
+	Mat img;
 	ScreenObserver scrOb = ScreenObserver();
-	scrOb.printSomething();
+	VisualOverlay vo = VisualOverlay();
+	HWND hwndDesktop = GetDesktopWindow();
+
+	scrOb.tempTest();
+	img = scrOb.screenToMatrix(hwndDesktop);
+
+	vo.drawRectangle(img,
+		scrOb.getPositionX(),
+		scrOb.getPositionY(),
+		scrOb.getPositionX() + scrOb.getWidth(),
+		scrOb.getPositionY() + scrOb.getHeight()
+	);
+
+	namedWindow("Placeholder Name", CV_WINDOW_AUTOSIZE);
+
+	for (i = 0; i < 100; i++)
+	{
+		img = scrOb.screenToMatrix(hwndDesktop);
+		/*vo.highlightViewArea(hwndDesktop,
+			scrOb.getPositionX(),
+			scrOb.getPositionY(),
+			scrOb.getWidth(),
+			scrOb.getHeight()
+			);*/
+		scrOb.displayImage(img, "Placeholder Name");
+		waitKey(0);
+	}
+
+	destroyWindow("Placeholder Name");
+
+	std::cout << "app running\n";
 	
 	/*
 	Mat img = imread("tiny.png", CV_LOAD_IMAGE_UNCHANGED);

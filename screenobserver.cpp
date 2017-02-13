@@ -1,8 +1,9 @@
 #include <iostream>
-#include <Windows.h>
+#include <windows.h>
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui.hpp"
 #include "screenobserver.h"
+#include "visualoverlay.h"
 
 using namespace cv;
 using namespace std;
@@ -11,16 +12,13 @@ ScreenObserver::ScreenObserver(int w, int h, int px, int py)
 : width(w), height(h), positionX(px), positionY(py)
 {}
 
-void ScreenObserver::printSomething() 
+void ScreenObserver::tempTest() 
 {
 	width = 640;
-	height = 480;
-	positionX = 50;
-	positionY = 300;
-	HWND hwndDesktop = GetDesktopWindow();
-	Mat tempImg = screenToMatrix(hwndDesktop);
-	displayImage(tempImg);
-	std::cout << "app running\n";
+	height = 355;
+	positionX = 310;
+	positionY = 355;
+	
 }
 
 Mat ScreenObserver::screenToMatrix(HWND hwnd) //Modified version of John Ktejik's solution found at: http://stackoverflow.com/a/14167433
@@ -58,19 +56,73 @@ Mat ScreenObserver::screenToMatrix(HWND hwnd) //Modified version of John Ktejik'
 	// use the previously created device context with the bitmap
 	SelectObject(hwindowCompatibleDC, hbwindow);
 	// copy from the window device context to the bitmap device context
-	StretchBlt(hwindowCompatibleDC, 0, 0, width, height, hwindowDC, positionX, positionY, srcwidth, srcheight, SRCCOPY); //CAN SET WINDOW POSITION HERE
-	GetDIBits(hwindowCompatibleDC, hbwindow, 0, height, screenShot.data, (BITMAPINFO *)&bi, DIB_RGB_COLORS);  //copy from hwindowCompatibleDC to hbwindow
+	StretchBlt(hwindowCompatibleDC,
+		0,
+		0,
+		width,
+		height,
+		hwindowDC,
+		positionX,
+		positionY,
+		srcwidth,
+		srcheight,
+		SRCCOPY
+	); //CAN SET WINDOW POSITION HERE
+	GetDIBits(hwindowCompatibleDC,
+		hbwindow,
+		0,
+		height,
+		screenShot.data,
+		(BITMAPINFO *)&bi,
+		DIB_RGB_COLORS
+	);  //copy from hwindowCompatibleDC to hbwindow
 																									  
 	DeleteObject(hbwindow); DeleteDC(hwindowCompatibleDC); ReleaseDC(hwnd, hwindowDC); // avoid memory leak
 
 	return screenShot;	
 }
 
-void ScreenObserver::displayImage(Mat img) 
+void ScreenObserver::displayImage(Mat img, const String wname) 
 {
-	namedWindow("Placeholder Name", CV_WINDOW_AUTOSIZE); 
-	imshow("Placeholder Name", img); 
+	imshow(wname, img); 
+}
 
-	waitKey(0); //wait infinite time for a keypress
-	destroyWindow("Placeholder Name"); //destroy the window with the name, "MyWindow"
+int ScreenObserver::getWidth()
+{
+	return width;
+}
+
+int ScreenObserver::getHeight()
+{
+	return height;
+}
+
+int ScreenObserver::getPositionX()
+{
+	return positionX;
+}
+
+int ScreenObserver::getPositionY()
+{
+	return positionY;
+}
+
+void ScreenObserver::setWidth(int w)
+{
+	width = w;
+}
+
+void ScreenObserver::setHeight(int h)
+{
+	height = h;
+}
+
+void ScreenObserver::setPositionX(int px)
+{
+	positionX = px;
+}
+
+void ScreenObserver::setPositionY(int py)
+{
+	positionY = py;
 }

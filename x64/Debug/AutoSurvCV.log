@@ -1,3 +1,4 @@
-﻿  screenobserver.cpp
+﻿  main.cpp
+c:\majorproject\autosurvcv\main.cpp(12): warning C4101: 'j': unreferenced local variable
   AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.exe
   AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.pdb (Partial PDB)
