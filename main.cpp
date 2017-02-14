@@ -2,6 +2,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "screenobserver.h"
 #include "visualoverlay.h"
+#include "haarcascade.h"
 
 using namespace cv;
 using namespace std;
@@ -9,6 +10,9 @@ using namespace std;
 
 int main()
 {
+	HaarCascade hc = HaarCascade();
+	hc.run();
+	/*
 	int i, j;
 	Mat img;
 	ScreenObserver scrOb = ScreenObserver();
@@ -30,12 +34,12 @@ int main()
 	for (i = 0; i < 100; i++)
 	{
 		img = scrOb.screenToMatrix(hwndDesktop);
-		/*vo.highlightViewArea(hwndDesktop,
+		vo.highlightViewArea(hwndDesktop,
 			scrOb.getPositionX(),
 			scrOb.getPositionY(),
 			scrOb.getWidth(),
 			scrOb.getHeight()
-			);*/
+			);
 		scrOb.displayImage(img, "Placeholder Name");
 		waitKey(0);
 	}
@@ -43,7 +47,7 @@ int main()
 	destroyWindow("Placeholder Name");
 
 	std::cout << "app running\n";
-	
+	*/
 	/*
 	Mat img = imread("tiny.png", CV_LOAD_IMAGE_UNCHANGED);
 	for (i=0;i<img.rows;i++)

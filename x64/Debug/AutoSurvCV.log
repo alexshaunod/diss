@@ -1,4 +1,6 @@
-﻿  main.cpp
-c:\majorproject\autosurvcv\main.cpp(12): warning C4101: 'j': unreferenced local variable
+﻿  haarcascade.cpp
+c:\majorproject\autosurvcv\haarcascade.cpp(76): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\majorproject\autosurvcv\haarcascade.cpp(77): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\majorproject\autosurvcv\haarcascade.cpp(87): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
   AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.exe
   AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.pdb (Partial PDB)

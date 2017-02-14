@@ -24,12 +24,18 @@
     <ClCompile Include="visualoverlay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="haarcascade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="screenobserver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="visualoverlay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="haarcascade.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -117,11 +117,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="haarcascade.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="screenobserver.cpp" />
     <ClCompile Include="visualoverlay.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="haarcascade.h" />
     <ClInclude Include="screenobserver.h" />
     <ClInclude Include="visualoverlay.h" />
   </ItemGroup>
