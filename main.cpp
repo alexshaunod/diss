@@ -3,6 +3,7 @@
 #include "screenobserver.h"
 #include "visualoverlay.h"
 #include "haarcascade.h"
+#include "hogcascade.h"
 
 using namespace cv;
 using namespace std;
@@ -12,6 +13,7 @@ int main()
 {
 	HaarCascade hc = HaarCascade();
 	hc.run();
+
 	/*
 	int i, j;
 	Mat img;
