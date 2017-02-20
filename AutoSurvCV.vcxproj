@@ -117,6 +117,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bgs.cpp" />
     <ClCompile Include="haarcascade.cpp" />
     <ClCompile Include="hogcascade.cpp" />
     <ClCompile Include="main.cpp" />
@@ -124,6 +125,7 @@
     <ClCompile Include="visualoverlay.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bgs.h" />
     <ClInclude Include="haarcascade.h" />
     <ClInclude Include="hogcascade.h" />
     <ClInclude Include="screenobserver.h" />

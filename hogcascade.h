@@ -7,6 +7,7 @@ class HogCascade
 {
 	public:
 		int run();
+		void testMatrix(Mat &mag, Mat &angle);
 };
 
 #endif

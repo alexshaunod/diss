@@ -4,6 +4,7 @@
 #include "visualoverlay.h"
 #include "haarcascade.h"
 #include "hogcascade.h"
+#include "bgs.h"
 
 using namespace cv;
 using namespace std;
@@ -11,8 +12,11 @@ using namespace std;
 
 int main()
 {
-	HaarCascade hc = HaarCascade();
-	hc.run();
+	//HogCascade hc = HogCascade();
+	//hc.run();
+
+	BGS bgs = BGS();
+	bgs.run();
 
 	/*
 	int i, j;

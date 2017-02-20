@@ -30,6 +30,9 @@
     <ClCompile Include="hogcascade.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bgs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="screenobserver.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hogcascade.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bgs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

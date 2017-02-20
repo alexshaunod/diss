@@ -28,7 +28,7 @@ int HogCascade::run()
 			if (!frame.empty())
 			{
 				cartToPolar(gx, gy, mag, angle, 1);
-				imshow("test", angle);
+				testMatrix(mag, angle);
 			}
 			else
 			{
@@ -39,5 +39,34 @@ int HogCascade::run()
 			if ((char)c == 'c') { break; }
 		}
 	}
+
 	return 0;
+}
+
+void HogCascade::testMatrix(Mat &mag, Mat &angle)
+{
+	int i, j, minX, maxX, minY, maxY;
+	
+	minX = 128;
+	maxX = 136;
+	minY = 72;
+	maxY = 80;
+	for (i = minX; i < maxX; i++)
+	{
+		for (j = minY; j<maxY; j++)
+		{
+			cout << "[" << mag.at<float>(i,j) << "," << angle.at<float>(i, j) << "]";
+		}
+		cout << endl;
+	}
+	cout << endl;
+	
+	rectangle(mag,
+		Point(minX, minY),
+		Point(maxX, maxY),
+		Scalar(0, 0, 255) ,
+		1,
+		LINE_8
+	);
+	imshow("test", mag);
 }

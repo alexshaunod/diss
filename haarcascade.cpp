@@ -16,10 +16,16 @@ using namespace cv;
 /** Global variables */
 String body_cascade_name = "haarcascade_fullbody_alt.xml";
 String upper_cascade_name = "haarcascade_upperbody.xml";
-
+Size farMinSize = Size(20, 40);
+Size farMaxSize = Size(40, 70);
+Size nearMinSize = Size(60, 60);
+Size nearMaxSize = Size(200, 200);
 CascadeClassifier body_cascade, upper_cascade;
 string window_name = "Capture - People Detection";
 RNG rng(12345);
+Scalar bgrYellow = Scalar(0, 255, 255);
+Scalar bgrRed = Scalar(0, 0, 255);
+int i;
 
 /** @function main */
 int HaarCascade::run()
@@ -61,33 +67,33 @@ int HaarCascade::run()
 void HaarCascade::detectAndDisplay(Mat frame)
 {
 	std::vector<Rect> people_far, people_near;
-	Mat frame_gray;
+	Mat frame_grey;
 
-	cvtColor(frame, frame_gray, CV_BGR2GRAY);
-	equalizeHist(frame_gray, frame_gray);
+	//cvtColor(frame, frame_grey, CV_BGR2GRAY);
+	//equalizeHist(frame_grey, frame_grey);
 
 	// Detect
-	body_cascade.detectMultiScale(frame, people_far, 1.15, 1, 0 | CV_HAAR_SCALE_IMAGE, Size(20,40), Size(40,70)); //far away
-	upper_cascade.detectMultiScale(frame, people_near, 1.05, 1, 0 | CV_HAAR_SCALE_IMAGE, Size(60, 60), Size(200, 200)); //nearby
+	body_cascade.detectMultiScale(frame, people_far, 1.15, 1, 0 | 1, farMinSize, farMaxSize); //far away
+	upper_cascade.detectMultiScale(frame, people_near, 1.05, 1, 0 | 1, nearMinSize, nearMaxSize); //nearby
 
-	for (size_t i = 0; i < people_far.size(); i++)
+	for (i = 0; i < people_far.size(); i++)
 	{
 		rectangle(frame,
 			Point (people_far[i].x, people_far[i].y),
 			Point (people_far[i].x + people_far[i].width, people_far[i].y + people_far[i].height),
-			Scalar(0, 255, 255),
+			bgrYellow,
 			1,
 			LINE_8
 		);
 
 	}
 	
-	for (size_t i = 0; i < people_near.size(); i++)
+	for (i = 0; i < people_near.size(); i++)
 	{
 		rectangle(frame,
 			Point(people_near[i].x, people_near[i].y),
 			Point(people_near[i].x + people_near[i].width, people_near[i].y + people_near[i].height),
-			Scalar(0, 0, 255),
+			bgrRed,
 			1,
 			LINE_8
 		);
