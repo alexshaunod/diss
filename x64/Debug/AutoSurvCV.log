@@ -1,3 +1,4 @@
 ﻿  bgs.cpp
+c:\majorproject\autosurvcv\bgs.cpp(39): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
   AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.exe
   AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.pdb (Partial PDB)

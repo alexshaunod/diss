@@ -25,13 +25,12 @@ string window_name = "Capture - People Detection";
 RNG rng(12345);
 Scalar bgrYellow = Scalar(0, 255, 255);
 Scalar bgrRed = Scalar(0, 0, 255);
-int i;
+int i, currentfps;
+VideoCapture capCam = VideoCapture();
 
 /** @function main */
 int HaarCascade::run()
 {
-
-	VideoCapture capCam = VideoCapture();
 	Mat frame;
 
 	//-- 1. Load the cascades

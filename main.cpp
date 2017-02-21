@@ -13,6 +13,7 @@ using namespace std;
 int main()
 {
 	//HogCascade hc = HogCascade();
+	//HaarCascade hc = HaarCascade();
 	//hc.run();
 
 	BGS bgs = BGS();
