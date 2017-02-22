@@ -33,6 +33,9 @@
     <ClCompile Include="bgs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="blobdetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="screenobserver.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bgs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="blobdetector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

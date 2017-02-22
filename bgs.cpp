@@ -1,26 +1,16 @@
-#include <iostream>
-#include <stdio.h>
-
-#include <opencv2/highgui.hpp>
-#include <opencv2/video.hpp>
-#include "opencv2/imgcodecs.hpp"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/videoio.hpp"
 #include "bgs.h"
-
-using namespace std;
-using namespace cv;
 
 int BGS::run()
 {
+	BlobDetector bd = BlobDetector();
 	VideoCapture capCam = VideoCapture();
 	Mat frame, fgMaskKNN, fgMaskMOG2;
 	Ptr<BackgroundSubtractor> pKNN, pMOG2;
-	int currentfps;
-	char fps[50];
+	//int currentfps;
+	//char fps[50];
 
-	pKNN = createBackgroundSubtractorKNN();
-	pMOG2 = createBackgroundSubtractorMOG2();
+	pKNN = createBackgroundSubtractorKNN(); 
+	pMOG2 = createBackgroundSubtractorMOG2(500, 20, true);
 
 	capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg");
 	
@@ -32,16 +22,17 @@ int BGS::run()
 
 			if (!frame.empty())
 			{
-				pKNN->apply(frame, fgMaskKNN);
-				pMOG2->apply(frame, fgMaskMOG2);
+				//pKNN->apply(frame, fgMaskKNN);
+				pMOG2->apply(frame, fgMaskMOG2); // type CV_8U
 
 				//display fps
-				currentfps = capCam.get(CV_CAP_PROP_FPS);
-				sprintf_s(fps, "%i" ,currentfps);
-				putText(frame, fps, Point(frame.rows, 15), FONT_HERSHEY_PLAIN, 1.5, Scalar(0, 0, 255), 1);
+				//currentfps = capCam.get(CV_CAP_PROP_FPS);
+				//sprintf_s(fps, "%i" ,currentfps);
+				//putText(frame, fps, Point(frame.rows, 15), FONT_HERSHEY_PLAIN, 1.5, Scalar(0, 0, 255), 1);
 
 				imshow("Video", frame);
-				imshow("KNN", fgMaskKNN);
+				bd.examine_frame(&fgMaskMOG2);
+				//imshow("KNN", fgMaskKNN);
 				imshow("MOG2", fgMaskMOG2);
 			}
 			else
