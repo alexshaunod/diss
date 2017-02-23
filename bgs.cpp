@@ -30,9 +30,10 @@ int BGS::run()
 				//sprintf_s(fps, "%i" ,currentfps);
 				//putText(frame, fps, Point(frame.rows, 15), FONT_HERSHEY_PLAIN, 1.5, Scalar(0, 0, 255), 1);
 
-				imshow("Video", frame);
-				bd.examine_frame(&fgMaskMOG2);
+				//bd.examine_frame(&frame, &fgMaskMOG2);
+				bd.highlight_contours(&frame, &fgMaskMOG2);
 				//imshow("KNN", fgMaskKNN);
+				imshow("Video", frame);
 				imshow("MOG2", fgMaskMOG2);
 			}
 			else
