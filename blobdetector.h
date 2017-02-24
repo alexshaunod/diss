@@ -15,7 +15,7 @@ class BlobDetector
 	public:
 		int run();
 		void examine_frame(Mat *frame,Mat *fgmask);
-		void highlight_contours(Mat *frame, Mat *fgmask);
+		Mat highlight_contours(Mat *frame, Mat *fgmask);
 };
 
 #endif
