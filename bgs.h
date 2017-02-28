@@ -19,6 +19,8 @@ class BGS
 	public :
 		int run();
 		Mat filter_noise(Mat *fgmask);
+		Mat erode_first(Mat *srcimg, Mat *element);
+		Mat dilate_first(Mat *srcimg, Mat *element);
 };
 
 #endif

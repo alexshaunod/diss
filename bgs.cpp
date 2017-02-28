@@ -9,7 +9,7 @@ int BGS::run()
 	//int currentfps;
 	//char fps[50];
 
-	pKNN = createBackgroundSubtractorKNN(500, 500, false);
+	pKNN = createBackgroundSubtractorKNN(750, 500, false);
 	//pMOG2 = createBackgroundSubtractorMOG2(500, 32, false);
 
 	capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg");
@@ -52,9 +52,26 @@ int BGS::run()
 
 Mat BGS::filter_noise(Mat *fgmask)
 {
-	Mat element, erodedMask, dilatedMask;
-	element = getStructuringElement(MORPH_RECT, Size(3, 3), Point(-1, -1));
-	erode(*fgmask, erodedMask, element);
-	dilate(erodedMask, dilatedMask, element);
+	Mat elem1, elem2, filteredMask, filteredMask2;
+	elem1 = getStructuringElement(MORPH_RECT, Size(5, 5));
+	elem2 = getStructuringElement(MORPH_RECT, Size(3, 3));
+	filteredMask = dilate_first(fgmask, &elem1);
+	filteredMask2 = erode_first(&filteredMask, &elem2);
+	return filteredMask2;
+}
+
+Mat BGS::erode_first(Mat *srcimg, Mat *element)
+{
+	Mat erodedMask, dilatedMask;
+	erode(*srcimg, erodedMask, *element);
+	dilate(erodedMask, dilatedMask, *element);
 	return dilatedMask;
+}
+
+Mat BGS::dilate_first(Mat *srcimg, Mat *element)
+{
+	Mat dilatedMask, erodedMask;
+	dilate(*srcimg, dilatedMask, *element);
+	erode(dilatedMask, erodedMask, *element);
+	return erodedMask;
 }

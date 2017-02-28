@@ -45,43 +45,50 @@ Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask)
 
 	findContours(*fgmask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	vector<vector<Point>> hull(contours.size());
-	vector<vector<Vec4i>> defects(contours.size());
 	for (int i = 0; i < contours.size(); i++)
 	{
-		convexHull(Mat(contours[i]), hull[i], false);
+		if (contours[i].size() > 10) //threshold for the number of contours to be drawn, excludes smaller shapes
+		{
+			convexHull(Mat(contours[i]), hull[i], false);
+		}
 	}
-
+	
 	drawn_contours = Mat::zeros(frame->size() , CV_8UC3);
 	for (int i = 0; i< contours.size(); i++)
 	{
-		drawContours(*frame,
-			contours,
-			i,
-			Scalar(0 , 0, 255),
-			1,
-			8,
-			hierarchy,
-			0,
-			Point());
-		drawContours(drawn_contours,
-			contours,
-			i,
-			Scalar(0, 0, 255),
-			1,
-			8,
-			hierarchy,
-			0,
-			Point());
-		drawContours(drawn_contours,
-			hull,
-			i,
-			Scalar(255, 0, 255),
-			1,
-			8,
-			hierarchy,
-			0,
-			Point());
+		draw_annotations(frame, &drawn_contours, contours, hierarchy, hull, i);
 	}
 	return drawn_contours;
+}
+
+void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, vector<vector<Point>> contours, vector<Vec4i> hierarchy, vector<vector<Point>> hull, int i)
+{
+	drawContours(*frame,
+		contours,
+		i,
+		Scalar(0, 0, 255),
+		1,
+		8,
+		hierarchy,
+		0,
+		Point());
+	drawContours(*drawn_contours,
+		contours,
+		i,
+		Scalar(0, 0, 255),
+		1,
+		8,
+		hierarchy,
+		0,
+		Point());
+	drawContours(*drawn_contours,
+		hull,
+		i,
+		Scalar(255, 0, 255),
+		1,
+		8,
+		hierarchy,
+		0,
+		Point());
 }
 

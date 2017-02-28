@@ -16,6 +16,7 @@ class BlobDetector
 		int run();
 		void examine_frame(Mat *frame,Mat *fgmask);
 		Mat highlight_contours(Mat *frame, Mat *fgmask);
+		void draw_annotations(Mat * frame, Mat * drawn_contours, vector<vector<Point>> contours, vector<Vec4i> hierarchy, vector<vector<Point>> hull, int i);
 };
 
 #endif

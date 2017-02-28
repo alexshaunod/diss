@@ -122,6 +122,7 @@
     <ClCompile Include="haarcascade.cpp" />
     <ClCompile Include="hogcascade.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="peoplefinder.cpp" />
     <ClCompile Include="screenobserver.cpp" />
     <ClCompile Include="visualoverlay.cpp" />
   </ItemGroup>
@@ -130,6 +131,7 @@
     <ClInclude Include="blobdetector.h" />
     <ClInclude Include="haarcascade.h" />
     <ClInclude Include="hogcascade.h" />
+    <ClInclude Include="peoplefinder.h" />
     <ClInclude Include="screenobserver.h" />
     <ClInclude Include="visualoverlay.h" />
   </ItemGroup>

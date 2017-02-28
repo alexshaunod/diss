@@ -5,6 +5,7 @@
 #include "haarcascade.h"
 #include "hogcascade.h"
 #include "bgs.h"
+#include "peoplefinder.h"
 
 using namespace cv;
 using namespace std;
@@ -12,12 +13,33 @@ using namespace std;
 
 int main()
 {
+
+	/* ENHANCE DEMO
+	Mat gx, gy, mag, angle, img;
+	Mat oldimg = imread("DataSets/enhance_blob_test.png", CV_LOAD_IMAGE_UNCHANGED);
+	resize(oldimg, img, Size(oldimg.rows*2, oldimg.cols*2));
+	img.convertTo(img, CV_32F, 1 / 255.0);
+
+	Sobel(img, gx, CV_32F, 1, 0, 1); //horizontal kernel
+	Sobel(img, gy, CV_32F, 0, 1, 1); //vertical kernel
+
+	cartToPolar(gx, gy, mag, angle, 1);
+
+	imshow("MyWindow", img);
+	imshow("mag", mag);
+
+	waitKey(0); //wait infinite time for a keypress
+	destroyWindow("MyWindow"); //destroy the window with the name, "MyWindow"
+	*/
+
 	//HogCascade hc = HogCascade();
 	//HaarCascade hc = HaarCascade();
 	//hc.run();
 
-	BGS bgs = BGS();
-	bgs.run();
+	PeopleFinder pf = PeopleFinder();
+	pf.train();
+	//BGS bgs = BGS();
+	//bgs.run();
 
 	/*
 	int i, j;
