@@ -39,6 +39,9 @@
     <ClCompile Include="peoplefinder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="branch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="screenobserver.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="peoplefinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="branch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

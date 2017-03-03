@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <opencv2/highgui.hpp>
 #include <opencv2/video.hpp>
+#include "branch.h"
 #include "blobdetector.h"
 
 using namespace cv;
@@ -13,6 +14,8 @@ using namespace std;
 
 class PeopleFinder
 {
+	private :
+
 	public :
 		void train();
 		vector<string> search_dataset_files(const string directory);

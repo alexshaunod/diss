@@ -5,17 +5,23 @@ void PeopleFinder::train()
 {
 	vector<string> filenames(2000);
 	vector<Mat> images(2000);
-	Mat tempimg;
+	Mat tempimg, contourimg;
 	int i = 0;
 	const string directory = "DataSets/PedCut2013/data/completeData/left_groundTruth/*.*";
 	BlobDetector bd = BlobDetector();
-
 
 	filenames = search_dataset_files(directory); //FORMAT: place folder in AutoSurvCV, forward slashes and end in "*.*"
 	images = load_dataset_files(filenames, directory);
 	while (!images.empty())
 	{
-		imshow("Contours", bd.highlight_contours(&images[i], &images[i]));
+		contourimg = bd.highlight_contours(&images[i], &images[i]);
+
+		Point testnode1 = Point(10, 10);
+		Point testnode2 = Point(contourimg.rows, contourimg.cols);
+		Branch testbranch = Branch(testnode1.x, testnode1.y, testnode2.x, testnode2.y);
+		line(contourimg, testnode1, testnode2, Scalar(0, 127, 255));
+
+		imshow("Contours", contourimg);
 		imshow("Ground Truth Data", images[i]);
 		waitKey(0);
 		destroyWindow("Contours");
@@ -54,7 +60,7 @@ void PeopleFinder::train()
 vector<string> PeopleFinder::search_dataset_files(const string directory)
 {
 	HANDLE hFind;
-	WIN32_FIND_DATA data;
+	WIN32_FIND_DATA data;				//cite Microsoft
 	string workdirectory, tempstr;
 	vector<string> filenames(2000);
 	int i = 0;

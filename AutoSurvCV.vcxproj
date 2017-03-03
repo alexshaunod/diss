@@ -119,6 +119,7 @@
   <ItemGroup>
     <ClCompile Include="bgs.cpp" />
     <ClCompile Include="blobdetector.cpp" />
+    <ClCompile Include="branch.cpp" />
     <ClCompile Include="haarcascade.cpp" />
     <ClCompile Include="hogcascade.cpp" />
     <ClCompile Include="main.cpp" />
@@ -129,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="bgs.h" />
     <ClInclude Include="blobdetector.h" />
+    <ClInclude Include="branch.h" />
     <ClInclude Include="haarcascade.h" />
     <ClInclude Include="hogcascade.h" />
     <ClInclude Include="peoplefinder.h" />
