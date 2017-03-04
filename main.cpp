@@ -37,7 +37,7 @@ int main()
 	//hc.run();
 
 	PeopleFinder pf = PeopleFinder();
-	pf.train();
+	pf.run();
 	//BGS bgs = BGS();
 	//bgs.run();
 

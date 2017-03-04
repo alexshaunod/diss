@@ -1,11 +1,17 @@
 #include "peoplefinder.h"
 
 
+void PeopleFinder::run()
+{
+	train();
+}
+
 void PeopleFinder::train()
 {
 	vector<string> filenames(2000);
 	vector<Mat> images(2000);
-	Mat tempimg, contourimg;
+	vector<Point> nodes(6);
+	Mat tempimg, contourimg, contoursonly, distimg;
 	int i = 0;
 	const string directory = "DataSets/PedCut2013/data/completeData/left_groundTruth/*.*";
 	BlobDetector bd = BlobDetector();
@@ -14,47 +20,62 @@ void PeopleFinder::train()
 	images = load_dataset_files(filenames, directory);
 	while (!images.empty())
 	{
-		contourimg = bd.highlight_contours(&images[i], &images[i]);
-
-		Point testnode1 = Point(10, 10);
-		Point testnode2 = Point(contourimg.rows, contourimg.cols);
-		Branch testbranch = Branch(testnode1.x, testnode1.y, testnode2.x, testnode2.y);
-		line(contourimg, testnode1, testnode2, Scalar(0, 127, 255));
-
-		imshow("Contours", contourimg);
+		contourimg = bd.highlight_contours(&images[i], &images[i], &contoursonly);
+		nodes = create_skeleton(&contoursonly);
+		//imshow("Hull", contourimg);
+		imshow("Contours Only", contoursonly);
 		imshow("Ground Truth Data", images[i]);
 		waitKey(0);
-		destroyWindow("Contours");
+		//destroyWindow("Hull");
+		destroyWindow("Contours Only");
 		destroyWindow("Ground Truth Data");
 		i++;
 	}
-	/*
-	img.open("DataSets/CAVIAR/WalkByShop1cor.mpg");
-	if (capCam.isOpened())
+
+
+	//Point testnode1 = Point(10, 10);
+	//Point testnode2 = Point(contourimg.rows, contourimg.cols);
+	//Branch testbranch = Branch(testnode1.x, testnode1.y, testnode2.x, testnode2.y);
+	//line(contourimg, testnode1, testnode2, Scalar(0, 127, 255));
+	//distanceTransform(images[i], distimg, CV_DIST_C, 3);
+}
+
+vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly)
+{
+	vector<Point> nodes(6);
+	bool insideshape = false;
+	int i, j;
+	for (i = 0; i < contoursonly->rows; i++)
 	{
-		while (true)
+		for (j = 0; j < contoursonly->cols; j++)
 		{
-			capCam.read(frame);
-			frame.convertTo(frame, CV_32F, 1 / 255.0);
-
-			Sobel(frame, gx, CV_32F, 1, 0, 1); //horizontal kernel
-			Sobel(frame, gy, CV_32F, 0, 1, 1); //vertical kernel
-
-			if (!frame.empty())
+			cout << "[" << (int)contoursonly->at<uchar>(i, j) << "]";
+			//if ((int)contoursonly->at<uchar>(i, j) == 0)
+			//{
+				//(int)contoursonly->at<uchar>(i, j) == 255;
+			//}
+			/*
+			if (insideshape)
 			{
-				cartToPolar(gx, gy, mag, angle, 1);
-				testMatrix(mag, angle);
+				if ((int)contoursonly->at<uchar>(j, i) == 255)
+				{
+					insideshape = false;
+				}
+				else
+				{
+					contoursonly->at<uchar>(j, i) = 255;
+				}
 			}
-			else
+			if ((int)contoursonly->at<uchar>(j, i) == 255)
 			{
-				printf(" --(!) No captured frame -- Break!"); break;
+				insideshape = true;
 			}
-
-			int c = waitKey(10);
-			if ((char)c == 'c') { break; }
+			*/
 		}
 	}
-	*/
+
+	return nodes;
+
 }
 
 vector<string> PeopleFinder::search_dataset_files(const string directory)
@@ -98,7 +119,7 @@ vector<string> PeopleFinder::search_dataset_files(const string directory)
 vector<Mat> PeopleFinder::load_dataset_files(vector<string> filenames, const string directory)
 {
 	vector<Mat> imgs(2000);
-	Mat tempimg;
+	Mat tempimg, resizeimg;
 	string directory_edit, fullpath;
 	int i = 0, j = 0;
 
@@ -111,7 +132,8 @@ vector<Mat> PeopleFinder::load_dataset_files(vector<string> filenames, const str
 		tempimg = imread(fullpath);
 		if (!tempimg.empty())
 		{
-			cvtColor(tempimg, imgs[j], CV_BGRA2GRAY);
+			cvtColor(tempimg, resizeimg, CV_BGRA2GRAY);
+			resize(resizeimg, imgs[j], Size(128, 256));
 			j++;
 		}
 		i++;

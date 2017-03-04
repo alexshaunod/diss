@@ -36,7 +36,7 @@ void BlobDetector::examine_frame(Mat *frame, Mat *fgmask)
 	//imshow("test", fgmask);
 }
 
-Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask)
+Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly)
 {
 	Mat drawn_contours;
 	RNG rng(12345);
@@ -54,14 +54,15 @@ Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask)
 	}
 	
 	drawn_contours = Mat::zeros(frame->size() , CV_8UC3);
+	*contoursonly = Mat::zeros(frame->size(), CV_8UC3);
 	for (int i = 0; i< contours.size(); i++)
 	{
-		draw_annotations(frame, &drawn_contours, contours, hierarchy, hull, i);
+		draw_annotations(frame, &drawn_contours, contoursonly, contours, hierarchy, hull, i);
 	}
 	return drawn_contours;
 }
 
-void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, vector<vector<Point>> contours, vector<Vec4i> hierarchy, vector<vector<Point>> hull, int i)
+void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, Mat *contoursonly, vector<vector<Point>> contours, vector<Vec4i> hierarchy, vector<vector<Point>> hull, int i)
 {
 	drawContours(*frame,
 		contours,
@@ -73,6 +74,15 @@ void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, vector<vect
 		0,
 		Point());
 	drawContours(*drawn_contours,
+		contours,
+		i,
+		Scalar(0, 0, 255),
+		1,
+		8,
+		hierarchy,
+		0,
+		Point());
+	drawContours(*contoursonly,
 		contours,
 		i,
 		Scalar(0, 0, 255),

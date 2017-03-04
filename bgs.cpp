@@ -4,7 +4,7 @@ int BGS::run()
 {
 	BlobDetector bd = BlobDetector();
 	VideoCapture capCam = VideoCapture();
-	Mat frame, fgMaskKNN, fgMaskMOG2, filteredMask;
+	Mat frame, fgMaskKNN, fgMaskMOG2, filteredMask, contourimg, contoursonly;
 	Ptr<BackgroundSubtractor> pKNN, pMOG2;
 	//int currentfps;
 	//char fps[50];
@@ -24,6 +24,7 @@ int BGS::run()
 			{
 				pKNN->apply(frame, fgMaskKNN);
 				filteredMask = filter_noise(&fgMaskKNN);
+				contourimg = bd.highlight_contours(&frame, &filteredMask, &contoursonly);
 				//pMOG2->apply(frame, fgMaskMOG2); // type CV_8U
 
 				//display fps
@@ -32,7 +33,7 @@ int BGS::run()
 				//putText(frame, fps, Point(frame.rows, 15), FONT_HERSHEY_PLAIN, 1.5, Scalar(0, 0, 255), 1);
 
 				//bd.examine_frame(&frame, &fgMaskMOG2);
-				imshow("Contours",bd.highlight_contours(&frame, &filteredMask));
+				imshow("Contours", contourimg);
 				imshow("KNN", filteredMask);
 				imshow("Video", frame);
 				//imshow("MOG2", fgMaskMOG2);

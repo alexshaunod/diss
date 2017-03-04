@@ -17,7 +17,9 @@ class PeopleFinder
 	private :
 
 	public :
+		void run();
 		void train();
+		vector<Point> create_skeleton(Mat * contoursonly);
 		vector<string> search_dataset_files(const string directory);
 		vector<Mat> load_dataset_files(vector<string> filenames, const string directory);
 		void blob_detect_training();
