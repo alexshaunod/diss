@@ -23,12 +23,12 @@ void PeopleFinder::train()
 		contourimg = bd.highlight_contours(&images[i], &images[i], &contoursonly);
 		nodes = create_skeleton(&contoursonly);
 		//imshow("Hull", contourimg);
-		imshow("Contours Only", contoursonly);
 		imshow("Ground Truth Data", images[i]);
+		imshow("Contours Only", contoursonly);
 		waitKey(0);
 		//destroyWindow("Hull");
-		destroyWindow("Contours Only");
 		destroyWindow("Ground Truth Data");
+		destroyWindow("Contours Only");
 		i++;
 	}
 
@@ -43,37 +43,42 @@ void PeopleFinder::train()
 vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly)
 {
 	vector<Point> nodes(6);
+	vector<Point> innerpixels(8192);
+	Point highest_px;
 	bool insideshape = false;
-	int i, j;
+	int i, j, k;
+
+	floodFill(*contoursonly, Point(32, 64), Scalar(64, 0, 0));
+	k = 0;
+	
 	for (i = 0; i < contoursonly->rows; i++)
 	{
 		for (j = 0; j < contoursonly->cols; j++)
 		{
-			cout << "[" << (int)contoursonly->at<uchar>(i, j) << "]";
-			//if ((int)contoursonly->at<uchar>(i, j) == 0)
-			//{
-				//(int)contoursonly->at<uchar>(i, j) == 255;
-			//}
-			/*
-			if (insideshape)
+			if (contoursonly->at<Vec3b>(i, j) == Vec3b(64, 0, 0))
 			{
-				if ((int)contoursonly->at<uchar>(j, i) == 255)
-				{
-					insideshape = false;
-				}
-				else
-				{
-					contoursonly->at<uchar>(j, i) = 255;
-				}
+				innerpixels[k] = Point(i, j);
+				k++;
 			}
-			if ((int)contoursonly->at<uchar>(j, i) == 255)
-			{
-				insideshape = true;
-			}
-			*/
 		}
 	}
+	k = 0;
+	highest_px = Point(1000,1000);
 
+	while (innerpixels[k] != Point(0,0))
+	{
+		if (innerpixels[k].x < highest_px.x)
+		{
+			highest_px.x = innerpixels[k].x;
+			highest_px.y = innerpixels[k].y;
+		}
+		k++;
+	}
+
+	highest_px.x += 5;
+	contoursonly->at<Vec3b>(highest_px.x, highest_px.y) = Vec3b(0, 128, 128);
+	circle(*contoursonly, Point(highest_px.y, highest_px.x), 2, Scalar(0, 128, 128));
+	
 	return nodes;
 
 }
@@ -133,7 +138,7 @@ vector<Mat> PeopleFinder::load_dataset_files(vector<string> filenames, const str
 		if (!tempimg.empty())
 		{
 			cvtColor(tempimg, resizeimg, CV_BGRA2GRAY);
-			resize(resizeimg, imgs[j], Size(128, 256));
+			resize(resizeimg, imgs[j], Size(64, 128));
 			j++;
 		}
 		i++;
