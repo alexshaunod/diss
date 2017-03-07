@@ -22,6 +22,8 @@ class PeopleFinder
 		vector<Point> create_skeleton(Mat * contoursonly, int imagenum);
 		Point find_head_feature(vector<Point> shapepixels, int threshold);
 		Point find_torso_feature(vector<Point> shapepixels, int threshold, Point head_feature);
+		Point find_waist_feature(vector<Point> shapepixels, int threshold, Point torso_feature);
+		Point find_foot_feature(vector<Point> shapepixels, int threshold, Point waist_feature, Point corner);
 		vector<string> search_dataset_files(const string directory);
 		vector<Mat> load_dataset_files(vector<string> filenames, const string directory);
 		void blob_detect_training();

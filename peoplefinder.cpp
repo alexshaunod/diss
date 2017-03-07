@@ -20,7 +20,7 @@ void PeopleFinder::train()
 	images = load_dataset_files(filenames, directory);
 	while (!images[i].rows == 0)
 	{
-		cout << "Image :" << i << endl;
+		//cout << "Image :" << i << endl;
 		contourimg = bd.highlight_contours(&images[i], &images[i], &contoursonly);
 		nodes = create_skeleton(&contoursonly, i);
 		//imshow("Hull", contourimg);
@@ -64,6 +64,9 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 
 		nodes[0] = find_head_feature(shapepixels, 5);
 		nodes[1] = find_torso_feature(shapepixels, 5, nodes[0]);
+		nodes[2] = find_waist_feature(shapepixels, 5, nodes[1]);
+		nodes[3] = find_foot_feature(shapepixels, 5, nodes[2], Point(127, 1));
+		nodes[4] = find_foot_feature(shapepixels, 5, nodes[2], Point(127, 63));
 
 		for (i = 0; i < 6; i++)
 		{
@@ -71,9 +74,9 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 			{
 				contoursonly->at<Vec3b>(nodes[i].x, nodes[i].y) = Vec3b(0, 255, 0);
 				circle(*contoursonly, Point(nodes[i].y, nodes[i].x), 2, Scalar(0, 255, 0));
-				//rectangle(*contoursonly, Point(0,0), Point(63,63), Scalar(0, 255, 255), 1);
 			}
 		}
+		rectangle(*contoursonly, Point(63,127), Point(62,126), Scalar(0, 255, 255), 1);
 	}
 	else
 	{
@@ -105,14 +108,15 @@ Point PeopleFinder::find_head_feature(vector<Point> shapepixels, int threshold)
 Point PeopleFinder::find_torso_feature(vector<Point> shapepixels, int threshold, Point head_feature)
 {
 	int i = 0;
-	int lower_bound_x = 64; //half way down the image
+	int lower_bound_x = 48; //half way down the image
 	Point torsonode = Point(1000, 1000);
 	Point best_fit_node = Point(1000, 1000);
 	Point current_row = shapepixels[0];
 	int shortest_dist = 1000;
 	int current_dist = 0; //distance between two sides of the shape
+	int head_range_y = 10;
 
-	if (lower_bound_x < head_feature.x) //prevent errors
+	if (lower_bound_x < head_feature.x) //prevent out of bound errors, lower boundary for the torso must at least be lower than the head
 	{
 		lower_bound_x = head_feature.x + 1;
 	}
@@ -123,6 +127,7 @@ Point PeopleFinder::find_torso_feature(vector<Point> shapepixels, int threshold,
 	}
 
 	current_row = shapepixels[i];
+	//shapepixels[i].y > head_feature.y - head_range_y && shapepixels[i].y < head_feature.y + head_range_y
 
 	while (shapepixels[i] != Point(0, 0) && shapepixels[i].x < lower_bound_x)
 	{
@@ -138,8 +143,8 @@ Point PeopleFinder::find_torso_feature(vector<Point> shapepixels, int threshold,
 				shortest_dist = current_dist;
 				best_fit_node = shapepixels[i - 1];
 			}
-			current_row = shapepixels[i];
 			current_dist = 0;
+			current_row = shapepixels[i];
 		}
 	}
 
@@ -147,6 +152,97 @@ Point PeopleFinder::find_torso_feature(vector<Point> shapepixels, int threshold,
 	torsonode.y = best_fit_node.y - (shortest_dist / 2);
 
 	return torsonode;
+}
+
+Point PeopleFinder::find_waist_feature(vector<Point> shapepixels, int threshold, Point torso_feature)
+{
+	int i = 0;
+	int upper_bound_x = 64; //half way down the image
+	int lower_bound_x = 80;
+	Point waistnode = Point(1000, 1000);
+	Point best_fit_node = Point(1000, 1000);
+	Point current_row = shapepixels[0]; //uses the column (y) axis to check for discontinuities, e.g if it jumps from 1,1 -> 1,3 then 1,2 is a discontinuity
+	int largest_dist = 0;
+	int current_dist = 0; //distance between two sides of the shape
+
+	if (upper_bound_x < torso_feature.x) //prevent out of bound errors, lower boundary for the torso must at least be lower than the head
+	{
+		upper_bound_x = torso_feature.x + 1;
+	}
+
+	while (shapepixels[i].x < upper_bound_x + threshold) //skip the pixels above the upper boundary, only searching lower half of the body
+	{
+		i++;
+	}
+
+	current_row = shapepixels[i];
+
+	while (shapepixels[i] != Point(0, 0) && shapepixels[i].x < lower_bound_x)
+	{
+		i++;
+		current_row.y += 1; //by increasing the current rows' y position, we can ignore discontinuities cause by arms/hands
+		if (shapepixels[i] == current_row)
+		{
+			current_dist += 1;
+		}
+		else
+		{
+			if (current_dist > largest_dist)
+			{
+				largest_dist = current_dist;
+				best_fit_node = shapepixels[i - 1];
+			}
+			current_row = shapepixels[i];
+			current_dist = 0;
+		}
+	}
+
+	waistnode.x = best_fit_node.x - threshold;
+	waistnode.y = best_fit_node.y - (largest_dist / 2);
+
+	return waistnode;
+}
+
+Point PeopleFinder::find_foot_feature(vector<Point> shapepixels, int threshold, Point waist_feature, Point corner)
+{
+	int i = 0;
+	int upper_bound_x = 70;
+	Point footnode = Point(1000, 1000);
+	Point best_fit_node = Point(1000, 1000);
+	Point current_row = shapepixels[0];
+	double distx, disty;
+	double current_dist;
+	double shortest_corner_dist = 10000;
+
+	if (upper_bound_x < waist_feature.x) //prevent out of bound errors, lower boundary for the torso must at least be lower than the head
+	{
+		upper_bound_x = waist_feature.x + 1;
+	}
+
+	while (shapepixels[i].x < upper_bound_x + threshold) //skip the pixels above the upper boundary, only searching lower half of the body
+	{
+		i++;
+	}
+
+	current_row = shapepixels[i];
+
+	while (shapepixels[i] != Point(0, 0))
+	{
+		i++;
+		distx = (corner.x - shapepixels[i].x) * (corner.x - shapepixels[i].x);
+		disty = (corner.y - shapepixels[i].y) * (corner.y - shapepixels[i].y);
+		current_dist = sqrt(distx + disty);
+		if (current_dist < shortest_corner_dist)
+		{
+			shortest_corner_dist = current_dist;
+			best_fit_node = shapepixels[i];
+		}
+	}
+
+	footnode.x = best_fit_node.x;
+	footnode.y = best_fit_node.y;
+
+	return footnode;
 }
 
 vector<string> PeopleFinder::search_dataset_files(const string directory)
