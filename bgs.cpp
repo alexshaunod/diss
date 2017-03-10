@@ -36,6 +36,9 @@ int BGS::run()
 				imshow("Contours", contourimg);
 				imshow("KNN", filteredMask);
 				imshow("Video", frame);
+				moveWindow("Video", 128, 128);
+				moveWindow("KNN", 512, 128);
+				moveWindow("Contours", 896, 128);
 				//imshow("MOG2", fgMaskMOG2);
 			}
 			else
