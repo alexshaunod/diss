@@ -40,8 +40,11 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 {
 	vector<Point> nodes(10);
 	vector<Point> shape_pixels(8192);
+	vector<Point> outline_pixels(8192);
+	Point halfway_node = Point(1000, 1000);
 	bool insideshape = false;
-	int i, j, k, arm_width;
+	int i, j, k, m, arm_width;
+	double halfway_dist;
 
 	if (contoursonly->at<Vec3b>(64, 32) != Vec3b(0, 0, 255)) // checks to see if the middle pixel overlaps with a contour
 	{
@@ -51,6 +54,7 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 	if (contoursonly->at<Vec3b>(0, 0) != Vec3b(64, 0, 0) && contoursonly->at<Vec3b>(64, 32) != Vec3b(0, 0, 255)) // if the fill is outside the center, skip the image(poor quality image)
 	{
 		k = 0;
+		m = 0;
 
 		for (i = 0; i < contoursonly->rows; i++)
 		{
@@ -61,17 +65,25 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 					shape_pixels[k] = Point(i, j);
 					k++;
 				}
+				if (contoursonly->at<Vec3b>(i, j) == Vec3b(0, 0, 255))
+				{
+					outline_pixels[m] = Point(i, j);
+					m++;
+				}
 			}
 		}
 
 		nodes[0] = find_head_feature(shape_pixels, 5);
 		nodes[1] = find_torso_feature(shape_pixels, 5, nodes[0]);
 		nodes[2] = find_waist_feature(shape_pixels, 5, nodes[1]);
+		calc_halfway_torso_dist(nodes[1], nodes[2], &halfway_node, &halfway_dist);
+
 		nodes[3] = find_foot_feature(shape_pixels, 5, nodes[2], Point(127, 1));
 		nodes[4] = find_foot_feature(shape_pixels, 5, nodes[2], Point(127, 63));
+
 		set_shoulder_positions(shape_pixels, 5, nodes[1], &nodes[5], &nodes[6], &arm_width);
-		nodes[7] = find_elbow_feature(shape_pixels, 5, nodes[1], nodes[2], nodes[5], &arm_width);
-	
+		nodes[7] = find_elbow_feature(shape_pixels, nodes[1], nodes[2], nodes[5], &arm_width, halfway_dist, halfway_node);
+		nodes[8] = find_left_hand_feature(shape_pixels, outline_pixels, nodes[7], &arm_width, halfway_dist, halfway_node);
 
 		line(*contoursonly, Point(nodes[0].y, nodes[0].x), Point(nodes[1].y, nodes[1].x), Scalar(255, 0, 255));
 		line(*contoursonly, Point(nodes[1].y, nodes[1].x), Point(nodes[2].y, nodes[2].x), Scalar(255, 0, 255));
@@ -296,28 +308,30 @@ void PeopleFinder::set_shoulder_positions(vector<Point> shape_pixels, int thresh
 
 }
 
-Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, int threshold, Point torso_feature, Point waist_feature, Point shoulder_feature, int *arm_width)
+void PeopleFinder::calc_halfway_torso_dist(Point torso_feature, Point waist_feature, Point *halfway_node, double *halfway_dist)
+{
+	int halfway_dist_x, halfway_dist_y;
+	double distx, disty;
+
+	halfway_dist_x = (waist_feature.x - torso_feature.x) / 2;
+	halfway_node->x = torso_feature.x + halfway_dist_x;
+	halfway_dist_y = (waist_feature.y - torso_feature.y) / 2;
+	halfway_node->y = torso_feature.y + halfway_dist_y;
+
+	distx = (halfway_node->x - torso_feature.x) * (halfway_node->x - torso_feature.x);
+	disty = (halfway_node->y - torso_feature.y) * (halfway_node->y - torso_feature.y);
+	*halfway_dist = sqrt(distx + disty);
+}
+
+Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, Point torso_feature, Point waist_feature, Point shoulder_feature, int *arm_width, double halfway_dist, Point halfway_node)
 {
 	int i = 0;
-	int halfway_dist_x, halfway_dist_y;
 	Point elbow_node = Point(1000, 1000);
-	Point halfway_node = Point(1000, 1000);
 	Point best_fit_node = Point(1000, 1000);
 	Point valid_pixel = Point(1000, 1000);
 	double distx, disty;
 	double current_dist;
 	double closest_dist = 100000;
-	double halfway_dist;
-
-	halfway_dist_x = (waist_feature.x - torso_feature.x) / 2;
-	halfway_node.x = torso_feature.x + halfway_dist_x;
-	halfway_dist_y = (waist_feature.y - torso_feature.y) / 2;
-	halfway_node.y = torso_feature.y + halfway_dist_y;
-
-	distx = (halfway_node.x - torso_feature.x) * (halfway_node.x - torso_feature.x);
-	disty = (halfway_node.y - torso_feature.y) * (halfway_node.y - torso_feature.y);
-	halfway_dist = sqrt(distx + disty);
-
 
 	while (shape_pixels[i].x < shoulder_feature.x) //assume the elbows are not above the shoulder
 	{
@@ -352,6 +366,39 @@ Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, int threshold
 	elbow_node.y = best_fit_node.y;
 
 	return elbow_node;
+}
+
+Point PeopleFinder::find_left_hand_feature(vector<Point> shape_pixels, vector<Point> outline_pixels, Point elbow_feature, int *arm_width, double halfway_dist, Point halfway_node)
+{
+	int i = 0;
+	Point hand_point = Point(1000, 1000);
+	double dist_iteration = 0;
+	double average_angle = 0;
+	double angle_rad;
+
+	while (outline_pixels[i].x < elbow_feature.x - *arm_width) 
+	{
+		i++;
+	}
+
+	while (outline_pixels[i] != Point(0, 0) && dist_iteration <= halfway_dist)
+	{
+		i++;
+		if (outline_pixels[i].y <= halfway_node.y + *arm_width)
+		{
+			dist_iteration++;
+			angle_rad = atan2(elbow_feature.x - outline_pixels[i].x, elbow_feature.y - outline_pixels[i].y) * M_PI / 180;
+			average_angle += angle_rad;
+			cout << "Angle between " << elbow_feature << " and " << outline_pixels[i] << " is " << angle_rad << endl;
+		}
+	}
+	average_angle = average_angle/halfway_dist;
+	//average_angle = average_angle * M_PI / 180;
+
+	hand_point.x = (int)elbow_feature.x + halfway_dist * acos(average_angle);
+	hand_point.y = (int)elbow_feature.y + halfway_dist * acos(average_angle);
+
+	return hand_point;
 }
 
 vector<string> PeopleFinder::search_dataset_files(const string directory)
