@@ -38,7 +38,7 @@ void PeopleFinder::train()
 
 vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 {
-	vector<Point> nodes(10);
+	vector<Point> nodes(11);
 	vector<Point> shape_pixels(8192);
 	vector<Point> outline_pixels(8192);
 	Point halfway_node = Point(1000, 1000);
@@ -73,6 +73,7 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 			}
 		}
 
+
 		nodes[0] = find_head_feature(shape_pixels, 5);
 		nodes[1] = find_torso_feature(shape_pixels, 5, nodes[0]);
 		nodes[2] = find_waist_feature(shape_pixels, 5, nodes[1]);
@@ -83,14 +84,21 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 
 		set_shoulder_positions(shape_pixels, 5, nodes[1], &nodes[5], &nodes[6], &arm_width);
 		nodes[7] = find_elbow_feature(shape_pixels, nodes[1], nodes[2], nodes[5], &arm_width, halfway_dist, halfway_node);
-		nodes[8] = find_left_hand_feature(shape_pixels, outline_pixels, nodes[7], &arm_width, halfway_dist, halfway_node);
+		nodes[8] = find_left_hand_feature(shape_pixels, outline_pixels, nodes[7], &arm_width, halfway_dist, halfway_node, contoursonly);
+		nodes[9] = find_elbow_feature(shape_pixels, nodes[1], nodes[2], nodes[6], &arm_width, halfway_dist, halfway_node);
 
-		line(*contoursonly, Point(nodes[0].y, nodes[0].x), Point(nodes[1].y, nodes[1].x), Scalar(255, 0, 255));
+		line(*contoursonly, Point(nodes[0].y, nodes[0].x), Point(nodes[1].y, nodes[1].x), Scalar(255, 0, 255));	//head to feet
 		line(*contoursonly, Point(nodes[1].y, nodes[1].x), Point(nodes[2].y, nodes[2].x), Scalar(255, 0, 255));
 		line(*contoursonly, Point(nodes[2].y, nodes[2].x), Point(nodes[3].y, nodes[3].x), Scalar(255, 0, 255));
 		line(*contoursonly, Point(nodes[2].y, nodes[2].x), Point(nodes[4].y, nodes[4].x), Scalar(255, 0, 255));
 
-		for (i = 0; i < 10; i++)
+		line(*contoursonly, Point(nodes[1].y, nodes[1].x), Point(nodes[5].y, nodes[5].x), Scalar(255, 0, 255)); //left side
+		line(*contoursonly, Point(nodes[5].y, nodes[5].x), Point(nodes[7].y, nodes[7].x), Scalar(255, 0, 255));
+		line(*contoursonly, Point(nodes[7].y, nodes[7].x), Point(nodes[8].y, nodes[8].x), Scalar(255, 0, 255));
+
+		line(*contoursonly, Point(nodes[1].y, nodes[1].x), Point(nodes[6].y, nodes[6].x), Scalar(255, 0, 255));	//right side
+
+		for (i = 0; i < 11; i++)
 		{
 			if (nodes[i] != Point(0, 0))
 			{
@@ -258,8 +266,7 @@ Point PeopleFinder::find_foot_feature(vector<Point> shape_pixels, int threshold,
 		}
 	}
 
-	footnode.x = best_fit_node.x;
-	footnode.y = best_fit_node.y;
+	footnode = best_fit_node;
 
 	return footnode;
 }
@@ -362,43 +369,93 @@ Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, Point torso_f
 		}
 	}
 
-	elbow_node.x = best_fit_node.x;
-	elbow_node.y = best_fit_node.y;
+	elbow_node = best_fit_node;
 
 	return elbow_node;
 }
 
-Point PeopleFinder::find_left_hand_feature(vector<Point> shape_pixels, vector<Point> outline_pixels, Point elbow_feature, int *arm_width, double halfway_dist, Point halfway_node)
+Point PeopleFinder::find_left_hand_feature(vector<Point> shape_pixels, vector<Point> outline_pixels, Point elbow_feature, int *arm_width, double halfway_dist, Point halfway_node, Mat *contours)
 {
-	int i = 0;
-	Point hand_point = Point(1000, 1000);
-	double dist_iteration = 0;
-	double average_angle = 0;
-	double angle_rad;
+	int i = 0, j = 0;
+	Point hand_node = Point(1000, 1000);
+	Point best_fit_node = Point(1000, 1000);
+	Point prev_valid_pixel = Point(1000, 1000);
+	Point curr_pixel;
+	vector<Point> neighbours(8);
+	int dist_iteration = 0;
+	double angle, average_angle = 0;
 
-	while (outline_pixels[i].x < elbow_feature.x - *arm_width) 
+	while (outline_pixels[i].x < elbow_feature.x - *arm_width)
 	{
 		i++;
 	}
 
-	while (outline_pixels[i] != Point(0, 0) && dist_iteration <= halfway_dist)
+	while (shape_pixels[j].x < elbow_feature.x - *arm_width)
 	{
-		i++;
-		if (outline_pixels[i].y <= halfway_node.y + *arm_width)
+		j++;
+	}
+
+	curr_pixel = outline_pixels[i]; //get the first valid node
+
+	while (curr_pixel != Point(0, 0) && dist_iteration <= halfway_dist) //examine neighbours, and follow the outline path for halfway_dist times
+	{
+		neighbours[0] = Point(curr_pixel.x + 1, curr_pixel.y + 1); //Lower right
+		neighbours[1] = Point(curr_pixel.x + 1, curr_pixel.y); //Lower mid
+		neighbours[2] = Point(curr_pixel.x + 1, curr_pixel.y - 1); //Lower left
+		neighbours[3] = Point(curr_pixel.x, curr_pixel.y + 1); //right
+		neighbours[4] = Point(curr_pixel.x, curr_pixel.y - 1); //left
+		neighbours[5] = Point(curr_pixel.x - 1, curr_pixel.y + 1); //Upper right
+		neighbours[6] = Point(curr_pixel.x - 1, curr_pixel.y); //Upper mid
+		neighbours[7] = Point(curr_pixel.x - 1, curr_pixel.y - 1); //Upper left
+
+		for (i = 0; i < 8; i++)
 		{
-			dist_iteration++;
-			angle_rad = atan2(elbow_feature.x - outline_pixels[i].x, elbow_feature.y - outline_pixels[i].y) * M_PI / 180;
-			average_angle += angle_rad;
-			cout << "Angle between " << elbow_feature << " and " << outline_pixels[i] << " is " << angle_rad << endl;
+			if (contours->at<Vec3b>(neighbours[i].x, neighbours[i].y) == Vec3b(0, 0, 255) && neighbours[i] != prev_valid_pixel)
+			{
+				prev_valid_pixel = curr_pixel;
+				curr_pixel = neighbours[i];
+				dist_iteration++;
+
+				angle = atan2(curr_pixel.y - prev_valid_pixel.y, curr_pixel.x - prev_valid_pixel.x);
+				average_angle += angle;
+				break;
+			}
 		}
 	}
-	average_angle = average_angle/halfway_dist;
-	//average_angle = average_angle * M_PI / 180;
 
-	hand_point.x = (int)elbow_feature.x + halfway_dist * acos(average_angle);
-	hand_point.y = (int)elbow_feature.y + halfway_dist * acos(average_angle);
+	average_angle = average_angle / dist_iteration;
+	best_fit_node = Point(elbow_feature.x + dist_iteration * cos(average_angle), elbow_feature.y + dist_iteration * sin(average_angle));
+	hand_node = find_closest_pixel(shape_pixels, best_fit_node, elbow_feature.x + halfway_dist, j);
 
-	return hand_point;
+	return hand_node;
+}
+
+Point PeopleFinder::find_closest_pixel(vector<Point> shape_pixels, Point goal_node, int x_bound, int n) //finds the closest pixel IF THE GOAL NODE IS KNOWN
+{
+	Point best_fit_node;
+	double distx, disty;
+	double current_dist;
+	double best_dist = 1000;
+
+	while (shape_pixels[n] != Point(0, 0) && shape_pixels[n].x <= x_bound)
+	{
+		n++;
+		if (shape_pixels[n] == goal_node)
+		{
+			best_fit_node = shape_pixels[n];
+			break;
+		}
+		distx = (goal_node.x - shape_pixels[n].x) * (goal_node.x - shape_pixels[n].x);
+		disty = (goal_node.y - shape_pixels[n].y) * (goal_node.y - shape_pixels[n].y);
+		current_dist = sqrt(distx + disty);
+		if (current_dist <= best_dist)
+		{
+			best_dist = current_dist;
+			best_fit_node = shape_pixels[n];
+		}
+	}
+
+	return best_fit_node;
 }
 
 vector<string> PeopleFinder::search_dataset_files(const string directory)

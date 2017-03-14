@@ -29,7 +29,8 @@ class PeopleFinder
 		void set_shoulder_positions(vector<Point> shape_pixels, int threshold, Point torso_feature, Point * left_shoulder, Point * right_shoulder, int *arm_width);
 		void calc_halfway_torso_dist(Point torso_feature, Point waist_feature, Point * halfway_node, double * halfway_dist);
 		Point find_elbow_feature(vector<Point> shape_pixels, Point torso_feature, Point waist_feature, Point shoulder_feature, int *arm_width, double halfway_dist, Point halfway_node);
-		Point find_left_hand_feature(vector<Point> shape_pixels, vector<Point> outline_pixels, Point elbow_feature, int *arm_width, double halfway_dist, Point halfway_node);
+		Point find_left_hand_feature(vector<Point> shape_pixels, vector<Point> outline_pixels, Point elbow_feature, int *arm_width, double halfway_dist, Point halfway_node, Mat *contours);
+		Point find_closest_pixel(vector<Point> shape_pixels, Point goal_node, int x_bound, int n);
 		vector<string> search_dataset_files(const string directory);
 		vector<Mat> load_dataset_files(vector<string> filenames, const string directory);
 		void blob_detect_training();
