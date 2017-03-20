@@ -141,7 +141,7 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 Point PeopleFinder::find_head_feature(vector<Point> shape_pixels, int threshold)
 {
 	int i = 0;
-	Point headnode = Point(1000, 1000);
+	Point headnode = Point(1000,1000);
 
 	while (shape_pixels[i] != Point(0, 0))
 	{
@@ -370,6 +370,7 @@ Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, Point torso_f
 	}
 
 	valid_pixel = Point(shape_pixels[i].x, shape_pixels[i].y + *arm_width);
+	best_fit_node = valid_pixel;
 	if (shoulder_feature.y >= torso_feature.y) //right shoudler, assume were looking for the right elbow
 	{
 		valid_pixel = Point(shape_pixels[i].x, shape_pixels[i - 1].y - *arm_width);

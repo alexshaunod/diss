@@ -9,7 +9,9 @@ int BGS::run()
 
 	pKNN = createBackgroundSubtractorKNN(750, 500, false);
 
-	capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg");
+	//capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg");
+	capCam.open("DataSets/CAVIAR/OneStopEnter2cor.mpg");
+	//capCam.open("DataSets/CAVIAR/OneShopOneWait2front.mpg");
 	
 	if (capCam.isOpened())
 	{

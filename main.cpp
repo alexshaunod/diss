@@ -17,10 +17,10 @@ int main()
 	//HaarCascade hc = HaarCascade();
 	//hc.run();
 
-	PeopleFinder pf = PeopleFinder();
-	pf.run();
-	//BGS bgs = BGS();
-	//bgs.run();
+	//PeopleFinder pf = PeopleFinder();
+	//pf.run();
+	BGS bgs = BGS();
+	bgs.run();
 	std::cin.ignore();
 
 	return 0;
