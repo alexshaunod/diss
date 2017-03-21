@@ -22,6 +22,7 @@ class PeopleFinder
 		void run();
 		void train();
 		void demo();
+		void test(vector<Mat> shapes);
 		vector<Point> create_skeleton(Mat * contoursonly, int imagenum);
 		Point find_head_feature(vector<Point> shape_pixels, int threshold);
 		Point find_torso_feature(vector<Point> shape_pixels, int threshold, Point head_feature);

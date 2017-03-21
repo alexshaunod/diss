@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <opencv2/highgui.hpp>
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/videoio.hpp"
@@ -12,6 +13,9 @@ using namespace cv;
 
 class BlobDetector
 {
+	private:
+
+
 	public:
 		int run();
 		void examine_frame(Mat *frame,Mat *fgmask);

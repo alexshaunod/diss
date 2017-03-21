@@ -10,7 +10,6 @@
 using namespace cv;
 using namespace std;
 
-
 int main()
 {
 	//HogCascade hc = HogCascade();

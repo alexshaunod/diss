@@ -1,6 +1,5 @@
 #include "peoplefinder.h"
 
-
 void PeopleFinder::run()
 {
 	//train();
@@ -53,6 +52,10 @@ void PeopleFinder::demo()
 		destroyWindow("Contours Only");
 		i++;
 	}
+}
+void PeopleFinder::test(vector<Mat> shapes)
+{
+	
 }
 
 vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)

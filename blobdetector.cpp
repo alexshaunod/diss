@@ -48,13 +48,14 @@ Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly)
 	vector<vector<Point>> hull(contours.size());
 	for (int i = 0; i < contours.size(); i++)
 	{
-		if (contours[i].size() > 20) //threshold for the number of contours to be drawn, excludes smaller shapes
+		if (contourArea(contours[i]) > 300) //threshold for the number of contours to be drawn, excludes smaller shapes
 		{
 			convexHull(Mat(contours[i]), hull[k], false);
 			k++;
+			//cout << contourArea(contours[i]) << endl;
 		}
 	}
-
+	//cout << endl;
 	drawn_contours = Mat::zeros(frame->size() , CV_8UC3);
 	*contoursonly = Mat::zeros(frame->size(), CV_8UC3);
 	for (int i = 0; i< contours.size(); i++)
@@ -62,7 +63,7 @@ Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly)
 		draw_annotations(frame, &drawn_contours, contoursonly, contours, hierarchy, hull, i);
 	}
 
-	get_large_shapes(&drawn_contours, hull, k);
+	get_large_shapes(contoursonly, hull, k);
 
 	return drawn_contours;
 }
@@ -109,9 +110,11 @@ void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, Mat *contou
 
 vector<Mat> BlobDetector::get_large_shapes(Mat *contoursonly, vector<vector<Point>> hull, int hullsize)
 {
-	vector<Mat> shapes;
+	vector<Mat> shapes(20);
 	Point topleft = Point(contoursonly->rows,contoursonly->cols);
 	Point botright = Point(0,0);
+	Rect roi;
+	Mat localsrc = *contoursonly;
 
 	for (int i = 0; i < hullsize; i++)
 	{
@@ -137,7 +140,18 @@ vector<Mat> BlobDetector::get_large_shapes(Mat *contoursonly, vector<vector<Poin
 				botright.y = hull[i][k].y;
 			}
 		}
-		rectangle(*contoursonly, topleft, botright, Vec3b(255, 255, 255));
+		//rectangle(*contoursonly, topleft, botright, Vec3b(255, 255, 255));
+
+		if (botright.x != 0 && topleft.x != 0)
+		{
+			roi = Rect(topleft.x, topleft.y, botright.x - topleft.x, botright.y - topleft.y);
+			shapes[i] = localsrc(roi);
+
+			imshow("extract", shapes[i]);
+			waitKey(0);
+			destroyWindow("extract");
+		}
+
 		topleft = Point(contoursonly->rows, contoursonly->cols);
 		botright = Point(0, 0);
 	}

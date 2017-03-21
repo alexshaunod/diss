@@ -3,15 +3,16 @@
 int BGS::run()
 {
 	BlobDetector bd = BlobDetector();
+	PeopleFinder pf = PeopleFinder();
 	VideoCapture capCam = VideoCapture();
-	Mat frame, fgMaskKNN, filteredMask, contourimg, contoursonly;
+	Mat frame, frame2, fgMaskKNN, filteredMask, contourimg, contoursonly;
 	Ptr<BackgroundSubtractor> pKNN, pMOG2;
 
-	pKNN = createBackgroundSubtractorKNN(750, 500, false);
+	pKNN = createBackgroundSubtractorKNN(750, 400, false);
 
-	//capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg");
-	capCam.open("DataSets/CAVIAR/OneStopEnter2cor.mpg");
-	//capCam.open("DataSets/CAVIAR/OneShopOneWait2front.mpg");
+	//capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg"); //MOST DIFFICULT VIDEO
+	capCam.open("DataSets/CAVIAR/OneStopEnter2cor.mpg"); //REFLECTIONS SUPPRESSED, BEST VIDEO FOR HIGHLIGHTING INDIVIDUAL MOVEMENT
+	//capCam.open("DataSets/CAVIAR/OneShopOneWait2front.mpg"); //GRAYSCALE INTERRUPTS SLIGHTLY, BUT REFLECTIONS MOSTLY SUPPRESSED
 	
 	if (capCam.isOpened())
 	{
@@ -21,13 +22,15 @@ int BGS::run()
 
 			if (!frame.empty())
 			{
-				pKNN->apply(frame, fgMaskKNN);
+				cvtColor(frame, frame2, CV_BGRA2GRAY);
+				pKNN->apply(frame2, fgMaskKNN);
 				filteredMask = filter_noise(&fgMaskKNN);
+
 				contourimg = bd.highlight_contours(&frame, &filteredMask, &contoursonly);
 
-				imshow("Contours", contourimg);
 				imshow("KNN", filteredMask);
 				imshow("Video", frame);
+				imshow("Contours", contourimg);
 				moveWindow("Video", 128, 128);
 				moveWindow("KNN", 512, 128);
 				moveWindow("Contours", 896, 128);

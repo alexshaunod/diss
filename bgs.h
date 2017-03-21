@@ -9,10 +9,8 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/videoio.hpp"
+#include "peoplefinder.h"
 #include "blobdetector.h"
-
-using namespace cv;
-using namespace std;
 
 class BGS
 {
