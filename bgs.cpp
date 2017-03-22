@@ -6,6 +6,7 @@ int BGS::run()
 	PeopleFinder pf = PeopleFinder();
 	VideoCapture capCam = VideoCapture();
 	Mat frame, frame2, fgMaskKNN, filteredMask, contourimg, contoursonly;
+	vector<Mat> large_shapes;
 	Ptr<BackgroundSubtractor> pKNN, pMOG2;
 
 	pKNN = createBackgroundSubtractorKNN(750, 400, false);
@@ -34,6 +35,9 @@ int BGS::run()
 				moveWindow("Video", 128, 128);
 				moveWindow("KNN", 512, 128);
 				moveWindow("Contours", 896, 128);
+
+				large_shapes = bd.get_large_shapes(&contoursonly, bd.get_hull_list(), bd.get_hull_size());
+				pf.test(large_shapes, bd.get_hull_size());
 			}
 			else
 			{

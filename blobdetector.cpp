@@ -38,20 +38,21 @@ void BlobDetector::examine_frame(Mat *frame, Mat *fgmask)
 
 Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly)
 {
-	int k = 0;
+	hull_size = 0;
 	Mat drawn_contours;
 	RNG rng(12345);
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
 
 	findContours(*fgmask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
-	vector<vector<Point>> hull(contours.size());
+	vector<vector<Point>> local_hull_list(contours.size());
+
 	for (int i = 0; i < contours.size(); i++)
 	{
 		if (contourArea(contours[i]) > 300) //threshold for the number of contours to be drawn, excludes smaller shapes
 		{
-			convexHull(Mat(contours[i]), hull[k], false);
-			k++;
+			convexHull(Mat(contours[i]), local_hull_list[hull_size], false);
+			hull_size++;
 			//cout << contourArea(contours[i]) << endl;
 		}
 	}
@@ -60,10 +61,10 @@ Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly)
 	*contoursonly = Mat::zeros(frame->size(), CV_8UC3);
 	for (int i = 0; i< contours.size(); i++)
 	{
-		draw_annotations(frame, &drawn_contours, contoursonly, contours, hierarchy, hull, i);
+		draw_annotations(frame, &drawn_contours, contoursonly, contours, hierarchy, local_hull_list, i);
 	}
 
-	get_large_shapes(contoursonly, hull, k);
+	hull_list = local_hull_list;
 
 	return drawn_contours;
 }
@@ -110,7 +111,7 @@ void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, Mat *contou
 
 vector<Mat> BlobDetector::get_large_shapes(Mat *contoursonly, vector<vector<Point>> hull, int hullsize)
 {
-	vector<Mat> shapes(20);
+	vector<Mat> shapes(30);
 	Point topleft = Point(contoursonly->rows,contoursonly->cols);
 	Point botright = Point(0,0);
 	Rect roi;
@@ -147,9 +148,9 @@ vector<Mat> BlobDetector::get_large_shapes(Mat *contoursonly, vector<vector<Poin
 			roi = Rect(topleft.x, topleft.y, botright.x - topleft.x, botright.y - topleft.y);
 			shapes[i] = localsrc(roi);
 
-			imshow("extract", shapes[i]);
-			waitKey(0);
-			destroyWindow("extract");
+			//imshow("extract", shapes[i]);
+			//waitKey(0);
+			//destroyWindow("extract");
 		}
 
 		topleft = Point(contoursonly->rows, contoursonly->cols);
@@ -157,5 +158,15 @@ vector<Mat> BlobDetector::get_large_shapes(Mat *contoursonly, vector<vector<Poin
 	}
 
 	return shapes;
+}
+
+vector<vector<Point>> BlobDetector::get_hull_list()
+{
+	return hull_list;
+}
+
+int BlobDetector::get_hull_size()
+{
+	return hull_size;
 }
 
