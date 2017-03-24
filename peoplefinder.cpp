@@ -173,6 +173,7 @@ Point PeopleFinder::find_torso_feature(vector<Point> shape_pixels, int threshold
 	}
 
 	current_row = shape_pixels[i];
+	best_fit_node = shape_pixels[i];
 
 	while (shape_pixels[i] != Point(0, 0) && shape_pixels[i].x < lower_bound_x)
 	{
@@ -210,36 +211,43 @@ Point PeopleFinder::find_waist_feature(vector<Point> shape_pixels, int threshold
 	int largest_dist = 0;
 	int current_dist = 0; //distance between two sides of the shape
 
-	if (upper_bound_x < torso_feature.x) //prevent out of bound errors, lower boundary for the torso must at least be lower than the head
+	try
 	{
-		upper_bound_x = torso_feature.x + 1;
-	}
-
-	while (shape_pixels[i].x < upper_bound_x + threshold) //skip the pixels above the upper boundary, only searching lower half of the body
-	{
-		i++;
-	}
-
-	current_row = shape_pixels[i];
-
-	while (shape_pixels[i] != Point(0, 0) && shape_pixels[i].x < lower_bound_x)
-	{
-		i++;
-		current_row.y += 1; //by increasing the current rows' y position, we can ignore discontinuities cause by arms/hands
-		if (shape_pixels[i] == current_row)
+		if (upper_bound_x < torso_feature.x) //prevent out of bound errors, lower boundary for the torso must at least be lower than the head
 		{
-			current_dist += 1;
+			upper_bound_x = torso_feature.x + 1;
 		}
-		else
+
+		while (shape_pixels[i].x < upper_bound_x + threshold) //skip the pixels above the upper boundary, only searching lower half of the body
 		{
-			if (current_dist > largest_dist)
+			i++;
+		}
+
+		current_row = shape_pixels[i];
+
+		while (shape_pixels[i] != Point(0, 0) && shape_pixels[i].x < lower_bound_x)
+		{
+			i++;
+			current_row.y += 1; //by increasing the current rows' y position, we can ignore discontinuities cause by arms/hands
+			if (shape_pixels[i] == current_row)
 			{
-				largest_dist = current_dist;
-				best_fit_node = shape_pixels[i - 1];
+				current_dist += 1;
 			}
-			current_row = shape_pixels[i];
-			current_dist = 0;
+			else
+			{
+				if (current_dist > largest_dist)
+				{
+					largest_dist = current_dist;
+					best_fit_node = shape_pixels[i - 1];
+				}
+				current_row = shape_pixels[i];
+				current_dist = 0;
+			}
 		}
+	}
+	catch (Exception e)
+	{
+		cout << "Unable to find waist feature." << endl;
 	}
 
 	waistnode.x = best_fit_node.x - threshold;
@@ -359,42 +367,50 @@ Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, Point torso_f
 	double current_dist;
 	double closest_dist = 100000;
 
-	while (shape_pixels[i].x < shoulder_feature.x) //assume the elbows are not above the shoulder
+	try
 	{
+		while (shape_pixels[i].x < shoulder_feature.x) //assume the elbows are not above the shoulder
+		{
+			i++;
+		}
+
+		valid_pixel = Point(shape_pixels[i].x, shape_pixels[i].y + *arm_width);
+		best_fit_node = valid_pixel;
+		if (shoulder_feature.y >= torso_feature.y) //right shoudler, assume were looking for the right elbow
+		{
+			valid_pixel = Point(shape_pixels[i].x, shape_pixels[i - 1].y - *arm_width);
+		}
 		i++;
+
+		while (shape_pixels[i] != Point(0, 0) && shape_pixels[i].x <= halfway_node.x)
+		{
+			i++;
+			if (shape_pixels[i] == valid_pixel)
+			{
+				distx = (shape_pixels[i].x - shoulder_feature.x) * (shape_pixels[i].x - shoulder_feature.x);
+				disty = (shape_pixels[i].y - shoulder_feature.y) * (shape_pixels[i].y - shoulder_feature.y);
+				current_dist = sqrt(distx + disty);
+
+				if ((halfway_dist - current_dist) <= closest_dist)
+				{
+					closest_dist = halfway_dist - current_dist;
+					best_fit_node = shape_pixels[i];
+				}
+			}
+			if (shape_pixels[i].x != valid_pixel.x)
+			{
+				valid_pixel = Point(shape_pixels[i].x, shape_pixels[i].y + *arm_width);
+				if (shoulder_feature.y >= torso_feature.y) //right shoudler, assume were looking for the right elbow
+				{
+					valid_pixel = Point(shape_pixels[i].x, shape_pixels[i - 1].y - *arm_width);
+				}
+			}
+		}
+
 	}
-
-	valid_pixel = Point(shape_pixels[i].x, shape_pixels[i].y + *arm_width);
-	best_fit_node = valid_pixel;
-	if (shoulder_feature.y >= torso_feature.y) //right shoudler, assume were looking for the right elbow
+	catch (Exception e)
 	{
-		valid_pixel = Point(shape_pixels[i].x, shape_pixels[i - 1].y - *arm_width);
-	}	
-	i++;
-
-	while (shape_pixels[i] != Point(0,0) && shape_pixels[i].x <= halfway_node.x)
-	{
-		i++;
-		if (shape_pixels[i] == valid_pixel)
-		{
-			distx = (shape_pixels[i].x - shoulder_feature.x) * (shape_pixels[i].x - shoulder_feature.x);
-			disty = (shape_pixels[i].y - shoulder_feature.y) * (shape_pixels[i].y - shoulder_feature.y);
-			current_dist = sqrt(distx + disty);
-
-			if ((halfway_dist - current_dist) <= closest_dist)
-			{
-				closest_dist = halfway_dist - current_dist;
-				best_fit_node = shape_pixels[i];
-			}
-		}
-		if (shape_pixels[i].x != valid_pixel.x)
-		{
-			valid_pixel = Point(shape_pixels[i].x, shape_pixels[i].y + *arm_width);
-			if (shoulder_feature.y >= torso_feature.y) //right shoudler, assume were looking for the right elbow
-			{
-				valid_pixel = Point(shape_pixels[i].x, shape_pixels[i - 1].y - *arm_width);
-			}
-		}
+		cout << "Unable to find elbow feature" << endl;
 	}
 
 	elbow_node = best_fit_node;
@@ -413,51 +429,59 @@ Point PeopleFinder::find_hand_feature(vector<Point> shape_pixels, vector<Point> 
 	int dist_iteration = 0;
 	double angle, average_angle = 0;
 
-	while (outline_pixels[i].x < elbow_feature.x - *arm_width)
+	try
 	{
-		i++;
-	}
-
-	while (shape_pixels[j].x < elbow_feature.x - *arm_width)
-	{
-		j++;
-	}
-
-	curr_pixel = outline_pixels[i]; //get the first valid node
-	if (elbow_feature.y >= waist_feature.y) //if looking for the right arm, assumes the right elbow is right of the waist
-	{
-		curr_pixel = outline_pixels[i - 1];
-	}
-
-	while (curr_pixel != Point(0, 0) && dist_iteration <= halfway_dist / 2) //examine neighbours, and follow the outline path for halfway_dist times
-	{
-		neighbours[0] = Point(curr_pixel.x + 1, curr_pixel.y + 1); //Lower right
-		neighbours[1] = Point(curr_pixel.x + 1, curr_pixel.y); //Lower mid
-		neighbours[2] = Point(curr_pixel.x + 1, curr_pixel.y - 1); //Lower left
-		neighbours[3] = Point(curr_pixel.x, curr_pixel.y + 1); //right
-		neighbours[4] = Point(curr_pixel.x, curr_pixel.y - 1); //left
-		neighbours[5] = Point(curr_pixel.x - 1, curr_pixel.y + 1); //Upper right
-		neighbours[6] = Point(curr_pixel.x - 1, curr_pixel.y); //Upper mid
-		neighbours[7] = Point(curr_pixel.x - 1, curr_pixel.y - 1); //Upper left
-
-		for (i = 0; i < 8; i++)
+		while (outline_pixels[i].x < elbow_feature.x - *arm_width)
 		{
-			if (neighbours[i].x >= 0 && neighbours[i].x < contours->rows && neighbours[i].y >= 0 && neighbours[i].y < contours->cols) //don't check out of bounds neighbours
-			{
-				if (contours->at<Vec3b>(neighbours[i].x, neighbours[i].y) == Vec3b(0, 0, 255) && neighbours[i] != prev_valid_pixel)
-				{
-					prev_valid_pixel = curr_pixel;
-					curr_pixel = neighbours[i];
-					//dist_iteration++;
+			i++;
+		}
 
-					angle = atan2(curr_pixel.y - prev_valid_pixel.y, curr_pixel.x - prev_valid_pixel.x);
-					average_angle += angle;
-					break;
+	
+		while (shape_pixels[j].x < elbow_feature.x - *arm_width)
+		{
+			j++;
+		}
+
+		curr_pixel = outline_pixels[i]; //get the first valid node
+		if (elbow_feature.y >= waist_feature.y) //if looking for the right arm, assumes the right elbow is right of the waist
+		{
+			curr_pixel = outline_pixels[i - 1];
+		}
+
+		while (curr_pixel != Point(0, 0) && dist_iteration <= halfway_dist / 2) //examine neighbours, and follow the outline path for halfway_dist times
+		{
+			neighbours[0] = Point(curr_pixel.x + 1, curr_pixel.y + 1); //Lower right
+			neighbours[1] = Point(curr_pixel.x + 1, curr_pixel.y); //Lower mid
+			neighbours[2] = Point(curr_pixel.x + 1, curr_pixel.y - 1); //Lower left
+			neighbours[3] = Point(curr_pixel.x, curr_pixel.y + 1); //right
+			neighbours[4] = Point(curr_pixel.x, curr_pixel.y - 1); //left
+			neighbours[5] = Point(curr_pixel.x - 1, curr_pixel.y + 1); //Upper right
+			neighbours[6] = Point(curr_pixel.x - 1, curr_pixel.y); //Upper mid
+			neighbours[7] = Point(curr_pixel.x - 1, curr_pixel.y - 1); //Upper left
+
+			for (i = 0; i < 8; i++)
+			{
+				if (neighbours[i].x >= 0 && neighbours[i].x < contours->rows && neighbours[i].y >= 0 && neighbours[i].y < contours->cols) //don't check out of bounds neighbours
+				{
+					if (contours->at<Vec3b>(neighbours[i].x, neighbours[i].y) == Vec3b(0, 0, 255) && neighbours[i] != prev_valid_pixel)
+					{
+						prev_valid_pixel = curr_pixel;
+						curr_pixel = neighbours[i];
+						//dist_iteration++;
+
+						angle = atan2(curr_pixel.y - prev_valid_pixel.y, curr_pixel.x - prev_valid_pixel.x);
+						average_angle += angle;
+						break;
+					}
 				}
 			}
-		}
-		dist_iteration++;
+			dist_iteration++;
 
+		}
+	}
+	catch (Exception e)
+	{
+		cout << "Unable to find hand feature." << endl;
 	}
 
 	average_angle = average_angle / dist_iteration;
@@ -499,26 +523,33 @@ void PeopleFinder::draw_skeleton(Mat * image, vector<Point> nodes)
 {
 	int i;
 
-	line(*image, Point(nodes[0].y, nodes[0].x), Point(nodes[1].y, nodes[1].x), Scalar(255, 0, 255));	//head to feet
-	line(*image, Point(nodes[1].y, nodes[1].x), Point(nodes[2].y, nodes[2].x), Scalar(255, 0, 255));
-	line(*image, Point(nodes[2].y, nodes[2].x), Point(nodes[3].y, nodes[3].x), Scalar(255, 0, 255));
-	line(*image, Point(nodes[2].y, nodes[2].x), Point(nodes[4].y, nodes[4].x), Scalar(255, 0, 255));
-
-	line(*image, Point(nodes[1].y, nodes[1].x), Point(nodes[5].y, nodes[5].x), Scalar(255, 0, 255)); //left side
-	line(*image, Point(nodes[5].y, nodes[5].x), Point(nodes[7].y, nodes[7].x), Scalar(255, 0, 255));
-	line(*image, Point(nodes[7].y, nodes[7].x), Point(nodes[8].y, nodes[8].x), Scalar(255, 0, 255));
-
-	line(*image, Point(nodes[1].y, nodes[1].x), Point(nodes[6].y, nodes[6].x), Scalar(255, 0, 255));	//right side
-	line(*image, Point(nodes[6].y, nodes[6].x), Point(nodes[9].y, nodes[9].x), Scalar(255, 0, 255));
-	line(*image, Point(nodes[9].y, nodes[9].x), Point(nodes[10].y, nodes[10].x), Scalar(255, 0, 255));
-
-	for (i = 0; i < 11; i++)
+	try
 	{
-		if (nodes[i] != Point(0, 0))
+		line(*image, Point(nodes[0].y, nodes[0].x), Point(nodes[1].y, nodes[1].x), Scalar(255, 0, 255));	//head to feet
+		line(*image, Point(nodes[1].y, nodes[1].x), Point(nodes[2].y, nodes[2].x), Scalar(255, 0, 255));
+		line(*image, Point(nodes[2].y, nodes[2].x), Point(nodes[3].y, nodes[3].x), Scalar(255, 0, 255));
+		line(*image, Point(nodes[2].y, nodes[2].x), Point(nodes[4].y, nodes[4].x), Scalar(255, 0, 255));
+
+		line(*image, Point(nodes[1].y, nodes[1].x), Point(nodes[5].y, nodes[5].x), Scalar(255, 0, 255)); //left side
+		line(*image, Point(nodes[5].y, nodes[5].x), Point(nodes[7].y, nodes[7].x), Scalar(255, 0, 255));
+		line(*image, Point(nodes[7].y, nodes[7].x), Point(nodes[8].y, nodes[8].x), Scalar(255, 0, 255));
+
+		line(*image, Point(nodes[1].y, nodes[1].x), Point(nodes[6].y, nodes[6].x), Scalar(255, 0, 255));	//right side
+		line(*image, Point(nodes[6].y, nodes[6].x), Point(nodes[9].y, nodes[9].x), Scalar(255, 0, 255));
+		line(*image, Point(nodes[9].y, nodes[9].x), Point(nodes[10].y, nodes[10].x), Scalar(255, 0, 255));
+
+		for (i = 0; i < 11; i++)
 		{
-			image->at<Vec3b>(nodes[i].x, nodes[i].y) = Vec3b(0, 255, 0);
-			circle(*image, Point(nodes[i].y, nodes[i].x), 2, Scalar(0, 255, 0));
+			if (nodes[i] != Point(0, 0))
+			{
+				image->at<Vec3b>(nodes[i].x, nodes[i].y) = Vec3b(0, 255, 0);
+				circle(*image, Point(nodes[i].y, nodes[i].x), 2, Scalar(0, 255, 0));
+			}
 		}
+	}
+	catch (Exception e)
+	{
+		cout << "Bad Skeleton, feature out of bounds." << endl;
 	}
 }
 

@@ -53,10 +53,10 @@ Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly)
 		{
 			convexHull(Mat(contours[i]), local_hull_list[hull_size], false);
 			hull_size++;
-			//cout << contourArea(contours[i]) << endl;
+
 		}
 	}
-	//cout << endl;
+
 	drawn_contours = Mat::zeros(frame->size() , CV_8UC3);
 	*contoursonly = Mat::zeros(frame->size(), CV_8UC3);
 	for (int i = 0; i< contours.size(); i++)
@@ -109,13 +109,15 @@ void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, Mat *contou
 		Point());
 }
 
-vector<Mat> BlobDetector::get_large_shapes(Mat *contoursonly, vector<vector<Point>> hull, int hullsize)
+vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, vector<vector<Point>> hull, int hullsize)
 {
-	vector<Mat> shapes(30);
-	Point topleft = Point(contoursonly->rows,contoursonly->cols);
+	vector<Mat> shapes(30), bg_shapes(30);
+	Point topleft = Point(src_image->rows,src_image->cols);
 	Point botright = Point(0,0);
 	Rect roi;
-	Mat localsrc = *contoursonly;
+	Mat localsrc = *src_image;
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
 
 	for (int i = 0; i < hullsize; i++)
 	{
@@ -141,19 +143,33 @@ vector<Mat> BlobDetector::get_large_shapes(Mat *contoursonly, vector<vector<Poin
 				botright.y = hull[i][k].y;
 			}
 		}
-		//rectangle(*contoursonly, topleft, botright, Vec3b(255, 255, 255));
+		//rectangle(*src_image, topleft, botright, Vec3b(255, 255, 255));
 
-		if (botright.x != 0 && topleft.x != 0)
+		if (botright.x != 0 && topleft.x != 0)	//Consider adding some pixels to the boundaries to give shape breathing room
 		{
 			roi = Rect(topleft.x, topleft.y, botright.x - topleft.x, botright.y - topleft.y);
-			shapes[i] = localsrc(roi);
+			resize(localsrc(roi), bg_shapes[i], Size(64, 128));
 
+			findContours(bg_shapes[i], contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));	//draw contours around the image again for clearer outlines.
+			shapes[i] = Mat::zeros(bg_shapes[i].size(), CV_8UC3);
+			drawContours(shapes[i],	contours,	contours.size()-1,	Scalar(0, 0, 255),	1,	8,	hierarchy,	0,	Point());
+
+			string str = "test_imgs/";	//TEMPORARY SAVING CODE
+			stringstream ss;
+			time_t seconds;
+			time(&seconds);
+			ss << seconds;
+			str.append(ss.str());
+			ss << i;
+			str.append(ss.str());
+			str.append(".png");
+			imwrite(str, shapes[i]);
 			//imshow("extract", shapes[i]);
 			//waitKey(0);
 			//destroyWindow("extract");
 		}
 
-		topleft = Point(contoursonly->rows, contoursonly->cols);
+		topleft = Point(src_image->rows, src_image->cols);
 		botright = Point(0, 0);
 	}
 

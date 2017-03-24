@@ -14,6 +14,7 @@ int BGS::run()
 	//capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg"); //MOST DIFFICULT VIDEO
 	capCam.open("DataSets/CAVIAR/OneStopEnter2cor.mpg"); //REFLECTIONS SUPPRESSED, BEST VIDEO FOR HIGHLIGHTING INDIVIDUAL MOVEMENT
 	//capCam.open("DataSets/CAVIAR/OneShopOneWait2front.mpg"); //GRAYSCALE INTERRUPTS SLIGHTLY, BUT REFLECTIONS MOSTLY SUPPRESSED
+	//capCam.open("DataSets/CAVIAR/OneStopNoEnter1cor.mpg");
 	
 	if (capCam.isOpened())
 	{
@@ -36,8 +37,8 @@ int BGS::run()
 				moveWindow("KNN", 512, 128);
 				moveWindow("Contours", 896, 128);
 
-				large_shapes = bd.get_large_shapes(&contoursonly, bd.get_hull_list(), bd.get_hull_size());
-				pf.test(large_shapes, bd.get_hull_size());
+				large_shapes = bd.get_large_shapes(&filteredMask, bd.get_hull_list(), bd.get_hull_size());
+				//pf.test(large_shapes, bd.get_hull_size());
 			}
 			else
 			{
