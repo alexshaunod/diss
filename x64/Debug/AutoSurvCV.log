@@ -1,5 +1,7 @@
 ﻿  peoplefinder.cpp
-c:\majorproject\autosurvcv\peoplefinder.cpp(523): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\majorproject\autosurvcv\peoplefinder.cpp(524): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\majorproject\autosurvcv\peoplefinder.cpp(530): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\majorproject\autosurvcv\peoplefinder.cpp(531): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+  main.cpp
+  Generating Code...
   AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.exe
   AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.pdb (Partial PDB)

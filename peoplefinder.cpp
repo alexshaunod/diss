@@ -32,7 +32,7 @@ void PeopleFinder::demo()
 	vector<Mat> images(2000);
 	Mat tempimg, contourimg, contoursonly, distimg;
 	int i = 0;
-	const string directory = "DataSets/PedCut2013/data/completeData/bad_image/*.*";
+	const string directory = "DataSets/PedCut2013/data/completeData/left_groundtruth/*.*";
 	BlobDetector bd = BlobDetector();
 
 	filenames = search_dataset_files(directory); //FORMAT: place folder in AutoSurvCV, forward slashes and end in "*.*"
@@ -80,6 +80,7 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 	Point halfway_node = Point(1000, 1000);
 	bool insideshape = false;
 	int i, j, k, m, arm_width;
+	int index_head, index_torso;
 	double halfway_dist;
 
 	if (contoursonly->at<Vec3b>(64, 32) != Vec3b(0, 0, 255)) // checks to see if the middle pixel overlaps with a contour
@@ -109,11 +110,11 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 			}
 		}
 
-		nodes[0] = find_head_feature(shape_pixels, 5);
-		nodes[1] = find_torso_feature(shape_pixels, 5, nodes[0]);
+		nodes[0] = find_head_feature(shape_pixels, 5, &index_head);
+		nodes[1] = find_torso_feature(shape_pixels, 5, nodes[0], index_head, &index_torso);
 		if (is_within_bound(nodes[1], contoursonly->rows, contoursonly->cols))	//Torso gives indication on whether the shape is valid or not
 		{
-			nodes[2] = find_waist_feature(shape_pixels, 5, nodes[1]);
+			nodes[2] = find_waist_feature(shape_pixels, 5, nodes[1], index_torso);
 			calc_halfway_torso_dist(nodes[1], nodes[2], &halfway_node, &halfway_dist);
 
 			nodes[3] = find_foot_feature(shape_pixels, 5, nodes[2], Point(127, 1));
@@ -167,17 +168,18 @@ void PeopleFinder::highlight_pixels(Mat *contoursonly, vector<Point> *shape_pixe
 }
 */
 
-Point PeopleFinder::find_head_feature(vector<Point> shape_pixels, int threshold)
+Point PeopleFinder::find_head_feature(vector<Point> shape_pixels, int threshold, int *index_head)
 {
 	int i = 0;
 	Point headnode = Point(1000,1000);
 
-	while (shape_pixels[i] != Point(0, 0))
+	while (shape_pixels[i] != Point(0, 0) && shape_pixels[i].x < headnode.x + threshold)	//Assume the head has been found after the first few rows have been searched
 	{
 		if (shape_pixels[i].x < headnode.x)
 		{
 			headnode.x = shape_pixels[i].x;
 			headnode.y = shape_pixels[i].y;
+			*index_head = i;
 		}
 		i++;
 	}
@@ -185,9 +187,9 @@ Point PeopleFinder::find_head_feature(vector<Point> shape_pixels, int threshold)
 	return headnode;
 }
 
-Point PeopleFinder::find_torso_feature(vector<Point> shape_pixels, int threshold, Point head_feature)
+Point PeopleFinder::find_torso_feature(vector<Point> shape_pixels, int threshold, Point head_feature, int index_head, int *index_torso)
 {
-	int i = 0;
+	int i = index_head;	//Start the initial iterations from the head pixel
 	int lower_bound_x = 48; //half way down the image
 	Point torsonode = Point(1000, 1000);
 	Point best_fit_node = Point(1000, 1000);
@@ -201,7 +203,7 @@ Point PeopleFinder::find_torso_feature(vector<Point> shape_pixels, int threshold
 		lower_bound_x = head_feature.x + 1;
 	}
 
-	while (shape_pixels[i].x < head_feature.x + threshold) //skip the pixels above the head feature
+	while (shape_pixels[i].x < head_feature.x + threshold && shape_pixels[i] != Point(0, 0)) //skip the pixels above the head feature
 	{
 		i++;
 	}
@@ -222,6 +224,7 @@ Point PeopleFinder::find_torso_feature(vector<Point> shape_pixels, int threshold
 			{
 				shortest_dist = current_dist;
 				best_fit_node = shape_pixels[i - 1];
+				*index_torso = i - 1;
 			}
 			current_dist = 0;
 			current_row = shape_pixels[i];
@@ -234,9 +237,9 @@ Point PeopleFinder::find_torso_feature(vector<Point> shape_pixels, int threshold
 	return torsonode;
 }
 
-Point PeopleFinder::find_waist_feature(vector<Point> shape_pixels, int threshold, Point torso_feature)
+Point PeopleFinder::find_waist_feature(vector<Point> shape_pixels, int threshold, Point torso_feature, int index_torso)
 {
-	int i = 0;
+	int i = index_torso; //Start the search from the torso pixel
 	int upper_bound_x = 64; //half way down the image
 	int lower_bound_x = 80;
 	Point waistnode = Point(1000, 1000);
@@ -254,6 +257,10 @@ Point PeopleFinder::find_waist_feature(vector<Point> shape_pixels, int threshold
 
 		while (shape_pixels[i].x < upper_bound_x + threshold) //skip the pixels above the upper boundary, only searching lower half of the body
 		{
+			if ((upper_bound_x + threshold - shape_pixels[i].x) >= 8)	//If the shape_pixels search space is 8 rows away from the ideal waist, speed up
+			{
+				i += 100;
+			}
 			i++;
 		}
 

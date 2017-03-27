@@ -27,11 +27,11 @@ class PeopleFinder
 
 		vector<Point> create_skeleton(Mat * contoursonly, int imagenum);
 
-		void highlight_pixels(Mat * contoursonly, vector<Point>* shape_pixels, vector<Point>* outline_pixels);
+		//void highlight_pixels(Mat * contoursonly, vector<Point>* shape_pixels, vector<Point>* outline_pixels);
 
-		Point find_head_feature(vector<Point> shape_pixels, int threshold);
-		Point find_torso_feature(vector<Point> shape_pixels, int threshold, Point head_feature);
-		Point find_waist_feature(vector<Point> shape_pixels, int threshold, Point torso_feature);
+		Point find_head_feature(vector<Point> shape_pixels, int threshold, int *index_head);
+		Point find_torso_feature(vector<Point> shape_pixels, int threshold, Point head_feature, int index_head, int *index_torso);
+		Point find_waist_feature(vector<Point> shape_pixels, int threshold, Point torso_feature, int index_torso);
 		Point find_foot_feature(vector<Point> shape_pixels, int threshold, Point waist_feature, Point corner);
 
 		void set_shoulder_positions(vector<Point> shape_pixels, int threshold, Point torso_feature, Point * left_shoulder, Point * right_shoulder, int *arm_width);
