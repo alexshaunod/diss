@@ -38,7 +38,7 @@ int BGS::run()
 				moveWindow("Contours", 896, 128);
 
 				large_shapes = bd.get_large_shapes(&filteredMask, bd.get_hull_list(), bd.get_hull_size());
-				//pf.test(large_shapes, bd.get_hull_size());
+				pf.test(large_shapes, bd.get_hull_size());
 			}
 			else
 			{

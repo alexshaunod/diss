@@ -32,7 +32,7 @@ void PeopleFinder::demo()
 	vector<Mat> images(2000);
 	Mat tempimg, contourimg, contoursonly, distimg;
 	int i = 0;
-	const string directory = "DataSets/PedCut2013/data/completeData/left_groundtruth/*.*";
+	const string directory = "DataSets/PedCut2013/data/completeData/bad_image/*.*";
 	BlobDetector bd = BlobDetector();
 
 	filenames = search_dataset_files(directory); //FORMAT: place folder in AutoSurvCV, forward slashes and end in "*.*"
@@ -48,6 +48,7 @@ void PeopleFinder::demo()
 		waitKey(0);
 		destroyWindow("Ground Truth Data");
 		destroyWindow("Contours Only");
+		create_skeleton(&contoursonly, i);
 		i++;
 	}
 }
@@ -60,12 +61,12 @@ void PeopleFinder::test(vector<Mat> shapes, int hull_size)
 	{
 		resize(shapes[i], current_shape, Size(64, 128));
 		create_skeleton(&current_shape, i);
+		//save_image(current_shape, "faulty_imgs/", i);
+		//imshow("Contours Only", current_shape);
+		//moveWindow("Contours Only", 192, 128);
 
-		imshow("Contours Only", current_shape);
-		moveWindow("Contours Only", 192, 128);
-
-		waitKey(0);
-		destroyWindow("Contours Only");
+		//waitKey(0);
+		//destroyWindow("Contours Only");
 		i++;
 	}
 	
@@ -75,7 +76,7 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 {
 	vector<Point> nodes(11);
 	vector<Point> shape_pixels(8192);
-	vector<Point> outline_pixels(8192);
+	vector<Point> outline_pixels(4096);
 	Point halfway_node = Point(1000, 1000);
 	bool insideshape = false;
 	int i, j, k, m, arm_width;
@@ -110,28 +111,61 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 
 		nodes[0] = find_head_feature(shape_pixels, 5);
 		nodes[1] = find_torso_feature(shape_pixels, 5, nodes[0]);
-		nodes[2] = find_waist_feature(shape_pixels, 5, nodes[1]);
-		calc_halfway_torso_dist(nodes[1], nodes[2], &halfway_node, &halfway_dist);
+		if (is_within_bound(nodes[1], contoursonly->rows, contoursonly->cols))	//Torso gives indication on whether the shape is valid or not
+		{
+			nodes[2] = find_waist_feature(shape_pixels, 5, nodes[1]);
+			calc_halfway_torso_dist(nodes[1], nodes[2], &halfway_node, &halfway_dist);
 
-		nodes[3] = find_foot_feature(shape_pixels, 5, nodes[2], Point(127, 1));
-		nodes[4] = find_foot_feature(shape_pixels, 5, nodes[2], Point(127, 63));
+			nodes[3] = find_foot_feature(shape_pixels, 5, nodes[2], Point(127, 1));
+			nodes[4] = find_foot_feature(shape_pixels, 5, nodes[2], Point(127, 63));
 
-		set_shoulder_positions(shape_pixels, 5, nodes[1], &nodes[5], &nodes[6], &arm_width);
-		nodes[7] = find_elbow_feature(shape_pixels, nodes[1], nodes[2], nodes[5], &arm_width, halfway_dist, halfway_node);
-		nodes[8] = find_hand_feature(shape_pixels, outline_pixels, nodes[2], nodes[7], &arm_width, halfway_dist, halfway_node, contoursonly);
-		nodes[9] = find_elbow_feature(shape_pixels, nodes[1], nodes[2], nodes[6], &arm_width, halfway_dist, halfway_node);
-		nodes[10] = find_hand_feature(shape_pixels, outline_pixels, nodes[2], nodes[9], &arm_width, halfway_dist, halfway_node, contoursonly);
+			set_shoulder_positions(shape_pixels, 5, nodes[1], &nodes[5], &nodes[6], &arm_width);
+			nodes[7] = find_elbow_feature(shape_pixels, nodes[1], nodes[2], nodes[5], &arm_width, halfway_dist, halfway_node);
+			nodes[8] = find_hand_feature(shape_pixels, outline_pixels, nodes[2], nodes[7], &arm_width, halfway_dist, halfway_node, contoursonly);
+			nodes[9] = find_elbow_feature(shape_pixels, nodes[1], nodes[2], nodes[6], &arm_width, halfway_dist, halfway_node);
+			nodes[10] = find_hand_feature(shape_pixels, outline_pixels, nodes[2], nodes[9], &arm_width, halfway_dist, halfway_node, contoursonly);
 
-		draw_skeleton(contoursonly, nodes);
+			draw_skeleton(contoursonly, nodes);
+		}
+		else
+		{
+			cout << "Bad shape, no skeleton found" << endl;
+		}
 	}
 	else
 	{
-		cout << "Unable to find skeleton in image " << imagenum << "(Reason: Off center)" << endl;
+		cout << "Unable to find skeleton in image " << "(Reason: Off center)" << endl;
 	}
 	
 	return nodes;
 
 }
+
+/*
+void PeopleFinder::highlight_pixels(Mat *contoursonly, vector<Point> *shape_pixels, vector<Point> *outline_pixels)
+{
+	int i, j, k, m;
+	k = 0;
+	m = 0;
+
+	for (i = 0; i < contoursonly->rows; i++)
+	{
+		for (j = 0; j < contoursonly->cols; j++)
+		{
+			if (contoursonly->at<Vec3b>(i, j) == Vec3b(64, 0, 0))
+			{
+				shape_pixels[k] = Point(i, j);
+				k++;
+			}
+			if (contoursonly->at<Vec3b>(i, j) == Vec3b(0, 0, 255))
+			{
+				outline_pixels[m] = Point(i, j);
+				m++;
+			}
+		}
+	}
+}
+*/
 
 Point PeopleFinder::find_head_feature(vector<Point> shape_pixels, int threshold)
 {
@@ -224,6 +258,7 @@ Point PeopleFinder::find_waist_feature(vector<Point> shape_pixels, int threshold
 		}
 
 		current_row = shape_pixels[i];
+		best_fit_node = current_row;
 
 		while (shape_pixels[i] != Point(0, 0) && shape_pixels[i].x < lower_bound_x)
 		{
@@ -271,7 +306,7 @@ Point PeopleFinder::find_foot_feature(vector<Point> shape_pixels, int threshold,
 		upper_bound_x = waist_feature.x + 1;
 	}
 
-	while (shape_pixels[i].x < upper_bound_x + threshold) //skip the pixels above the upper boundary, only searching lower half of the body
+	while (shape_pixels[i].x < upper_bound_x + threshold && shape_pixels[i] != Point(0,0)) //skip the pixels above the upper boundary, only searching lower half of the body
 	{
 		i++;
 	}
@@ -431,7 +466,7 @@ Point PeopleFinder::find_hand_feature(vector<Point> shape_pixels, vector<Point> 
 
 	try
 	{
-		while (outline_pixels[i].x < elbow_feature.x - *arm_width)
+		while (outline_pixels[i].x < elbow_feature.x - *arm_width && i < outline_pixels.size()-1)
 		{
 			i++;
 		}
@@ -461,7 +496,7 @@ Point PeopleFinder::find_hand_feature(vector<Point> shape_pixels, vector<Point> 
 
 			for (i = 0; i < 8; i++)
 			{
-				if (neighbours[i].x >= 0 && neighbours[i].x < contours->rows && neighbours[i].y >= 0 && neighbours[i].y < contours->cols) //don't check out of bounds neighbours
+				if (is_within_bound(neighbours[i], contours->rows, contours->cols)) //don't check out of bounds neighbours
 				{
 					if (contours->at<Vec3b>(neighbours[i].x, neighbours[i].y) == Vec3b(0, 0, 255) && neighbours[i] != prev_valid_pixel)
 					{
@@ -550,7 +585,13 @@ void PeopleFinder::draw_skeleton(Mat * image, vector<Point> nodes)
 	catch (Exception e)
 	{
 		cout << "Bad Skeleton, feature out of bounds." << endl;
+		//save_image(*image , "faulty_imgs/");
 	}
+}
+
+bool PeopleFinder::is_within_bound(Point node, int x_bound, int y_bound)
+{
+	return (node.x >= 0 && node.x < x_bound && node.y >= 0 && node.y < y_bound);
 }
 
 vector<string> PeopleFinder::search_dataset_files(const string directory)
@@ -615,4 +656,20 @@ vector<Mat> PeopleFinder::load_dataset_files(vector<string> filenames, const str
 	}
 	cout << "Images loaded." << endl;
 	return imgs;
+}
+
+void PeopleFinder::save_image(Mat image, string folder, int i)
+{
+	string str = folder;	//TEMPORARY SAVING CODE
+	stringstream ss;
+	time_t seconds;
+
+	time(&seconds);
+	ss << seconds;
+	str.append(ss.str());
+	ss << i;
+	str.append(ss.str());
+
+	str.append(".png");
+	imwrite(str, image);
 }

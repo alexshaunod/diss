@@ -5,7 +5,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <windows.h>
-#include <cmath>
+#include <string>
+#include <ctime>
 #include <opencv2/highgui.hpp>
 #include <opencv2/video.hpp>
 #include "branch.h"
@@ -26,6 +27,8 @@ class PeopleFinder
 
 		vector<Point> create_skeleton(Mat * contoursonly, int imagenum);
 
+		void highlight_pixels(Mat * contoursonly, vector<Point>* shape_pixels, vector<Point>* outline_pixels);
+
 		Point find_head_feature(vector<Point> shape_pixels, int threshold);
 		Point find_torso_feature(vector<Point> shape_pixels, int threshold, Point head_feature);
 		Point find_waist_feature(vector<Point> shape_pixels, int threshold, Point torso_feature);
@@ -40,8 +43,11 @@ class PeopleFinder
 
 		void draw_skeleton(Mat *image, vector<Point> nodes);
 
+		bool is_within_bound(Point node, int x_bound, int y_bound);
+
 		vector<string> search_dataset_files(const string directory);
 		vector<Mat> load_dataset_files(vector<string> filenames, const string directory);
+		void save_image(Mat image, string folder, int i);
 };
 
 #endif

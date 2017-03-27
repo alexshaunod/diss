@@ -154,17 +154,8 @@ vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, vector<vector<Point>>
 			shapes[i] = Mat::zeros(bg_shapes[i].size(), CV_8UC3);
 			drawContours(shapes[i],	contours,	contours.size()-1,	Scalar(0, 0, 255),	1,	8,	hierarchy,	0,	Point());
 
-			string str = "test_imgs/";	//TEMPORARY SAVING CODE
-			stringstream ss;
-			time_t seconds;
-			time(&seconds);
-			ss << seconds;
-			str.append(ss.str());
-			ss << i;
-			str.append(ss.str());
-			str.append(".png");
-			imwrite(str, shapes[i]);
 			//imshow("extract", shapes[i]);
+			//moveWindow("extract", 128, 328);
 			//waitKey(0);
 			//destroyWindow("extract");
 		}

@@ -3,8 +3,6 @@
 
 #include <iostream>
 #include <stdio.h>
-#include <string>
-#include <ctime>
 #include <opencv2/highgui.hpp>
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
