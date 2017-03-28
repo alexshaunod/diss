@@ -8,6 +8,7 @@ int BGS::run()
 	Mat frame, frame2, fgMaskKNN, filteredMask, contourimg, contoursonly;
 	vector<Mat> large_shapes;
 	Ptr<BackgroundSubtractor> pKNN, pMOG2;
+	int fps, frame_number = 0, iteration = 0;
 
 	pKNN = createBackgroundSubtractorKNN(750, 400, false);
 
@@ -18,12 +19,14 @@ int BGS::run()
 	
 	if (capCam.isOpened())
 	{
+		fps = capCam.get(CV_CAP_PROP_FPS);
 		while (true)
 		{
 			capCam.read(frame);
 
 			if (!frame.empty())
 			{
+				frame_number++;
 				cvtColor(frame, frame2, CV_BGRA2GRAY);
 				pKNN->apply(frame2, fgMaskKNN);
 				filteredMask = filter_noise(&fgMaskKNN);
@@ -37,8 +40,12 @@ int BGS::run()
 				moveWindow("KNN", 512, 128);
 				moveWindow("Contours", 896, 128);
 
-				large_shapes = bd.get_large_shapes(&filteredMask, bd.get_hull_list(), bd.get_hull_size());
-				pf.test(large_shapes, bd.get_hull_size());
+				if (frame_number - (fps * iteration) == fps)	//This equation ensures that it runs the pedestrian detector every second of the video
+				{
+					iteration++;
+					large_shapes = bd.get_large_shapes(&filteredMask, bd.get_hull_list(), bd.get_hull_size());
+					pf.test(large_shapes, bd.get_hull_size());
+				}
 			}
 			else
 			{

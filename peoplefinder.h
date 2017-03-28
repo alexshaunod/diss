@@ -31,14 +31,14 @@ class PeopleFinder
 
 		Point find_head_feature(vector<Point> shape_pixels, int threshold, int *index_head);
 		Point find_torso_feature(vector<Point> shape_pixels, int threshold, Point head_feature, int index_head, int *index_torso);
-		Point find_waist_feature(vector<Point> shape_pixels, int threshold, Point torso_feature, int index_torso);
-		Point find_foot_feature(vector<Point> shape_pixels, int threshold, Point waist_feature, Point corner);
+		Point find_waist_feature(vector<Point> shape_pixels, int threshold, Point torso_feature, int index_torso, int *index_waist);
+		Point find_foot_feature(vector<Point> shape_pixels, int threshold, Point waist_feature, Point corner, int index_waist);
 
-		void set_shoulder_positions(vector<Point> shape_pixels, int threshold, Point torso_feature, Point * left_shoulder, Point * right_shoulder, int *arm_width);
+		void set_shoulder_positions(vector<Point> shape_pixels, int threshold, Point torso_feature, Point * left_shoulder, Point * right_shoulder, int *arm_width, int index_torso, int *index_shoulders);
 		void calc_halfway_torso_dist(Point torso_feature, Point waist_feature, Point * halfway_node, double * halfway_dist);
 
-		Point find_elbow_feature(vector<Point> shape_pixels, Point torso_feature, Point waist_feature, Point shoulder_feature, int *arm_width, double halfway_dist, Point halfway_node);
-		Point find_hand_feature(vector<Point> shape_pixels, vector<Point> outline_pixels, Point waist_feature, Point elbow_feature, int *arm_width, double halfway_dist, Point halfway_node, Mat *contours);
+		Point find_elbow_feature(vector<Point> shape_pixels, Point torso_feature, Point waist_feature, Point shoulder_feature, int *arm_width, double halfway_dist, Point halfway_node, int index_shoulders);
+		Point find_hand_feature(vector<Point> shape_pixels, vector<Point> outline_pixels, Point waist_feature, Point elbow_feature, int *arm_width, double halfway_dist, Point halfway_node, Mat *contours, int index_shoulders);
 		Point find_closest_pixel(vector<Point> shape_pixels, Point goal_node, int x_bound, int n);
 
 		void draw_skeleton(Mat *image, vector<Point> nodes);
