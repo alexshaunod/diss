@@ -15,7 +15,7 @@ int BGS::run()
 	//capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg"); //MOST DIFFICULT VIDEO
 	capCam.open("DataSets/CAVIAR/OneStopEnter2cor.mpg"); //REFLECTIONS SUPPRESSED, BEST VIDEO FOR HIGHLIGHTING INDIVIDUAL MOVEMENT
 	//capCam.open("DataSets/CAVIAR/OneShopOneWait2front.mpg"); //GRAYSCALE INTERRUPTS SLIGHTLY, BUT REFLECTIONS MOSTLY SUPPRESSED
-	//capCam.open("DataSets/CAVIAR/OneStopNoEnter1cor.mpg");
+	//capCam.open("DataSets/CAVIAR/OneStopNoEnter1cor.mpg");	//Pedestrian shapes appear fairly well, slight reflections
 	
 	if (capCam.isOpened())
 	{
@@ -43,7 +43,7 @@ int BGS::run()
 				if (frame_number - (fps * iteration) == fps)	//This equation ensures that it runs the pedestrian detector every second of the video
 				{
 					iteration++;
-					large_shapes = bd.get_large_shapes(&filteredMask, bd.get_hull_list(), bd.get_hull_size());
+					large_shapes = bd.get_large_shapes(&filteredMask, bd.get_hull_list(), bd.get_hull_size(), 2);
 					pf.test(large_shapes, bd.get_hull_size());
 				}
 			}

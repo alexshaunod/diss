@@ -61,7 +61,7 @@ void PeopleFinder::test(vector<Mat> shapes, int hull_size)
 	{
 		resize(shapes[i], current_shape, Size(64, 128));
 		create_skeleton(&current_shape, i);
-		//save_image(current_shape, "faulty_imgs/", i);
+		save_image(current_shape, "faulty_imgs/", i);	//Can return the skeleton image here
 		//imshow("Contours Only", current_shape);
 		//moveWindow("Contours Only", 192, 128);
 
@@ -80,7 +80,7 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 	Point halfway_node = Point(1000, 1000);
 	bool insideshape = false;
 	int i, j, k, m, arm_width;
-	int index_head, index_torso, index_waist, index_shoulders;
+	int index_head = 0, index_torso = 0, index_waist = 0, index_shoulders = 0;
 	double halfway_dist;
 
 	if (contoursonly->at<Vec3b>(64, 32) != Vec3b(0, 0, 255)) // checks to see if the middle pixel overlaps with a contour
@@ -255,7 +255,7 @@ Point PeopleFinder::find_waist_feature(vector<Point> shape_pixels, int threshold
 			upper_bound_x = torso_feature.x + 1;
 		}
 
-		while (shape_pixels[i].x < upper_bound_x + threshold) //skip the pixels above the upper boundary, only searching lower half of the body
+		while (shape_pixels[i].x < upper_bound_x + threshold && shape_pixels[i] != Point(0,0)) //skip the pixels above the upper boundary, only searching lower half of the body
 		{
 			if ((upper_bound_x + threshold - shape_pixels[i].x) >= 8)	//If the shape_pixels search space is 8 rows away from the ideal waist, speed up
 			{

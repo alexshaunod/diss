@@ -109,7 +109,7 @@ void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, Mat *contou
 		Point());
 }
 
-vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, vector<vector<Point>> hull, int hullsize)
+vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, vector<vector<Point>> hull, int hullsize, int edge_space)
 {
 	vector<Mat> shapes(30), bg_shapes(30);
 	Point topleft = Point(src_image->rows,src_image->cols);
@@ -165,6 +165,11 @@ vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, vector<vector<Point>>
 	}
 
 	return shapes;
+}
+
+bool BlobDetector::is_within_bound(Point node, int x_bound, int y_bound)
+{
+	return (node.x >= 0 && node.x < x_bound && node.y >= 0 && node.y < y_bound);
 }
 
 vector<vector<Point>> BlobDetector::get_hull_list()
