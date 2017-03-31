@@ -1,29 +1,78 @@
 #include "peoplefinder.h"
 
+PeopleFinder::PeopleFinder(vector<Point> min, vector<Point> max, bool bad)
+	: min_range(min), max_range(max), bad_skel_flag(bad)
+{}
+
+void PeopleFinder::init()
+{
+	int i;
+
+	for (i = 0; i < 11; i++)
+	{
+		min_range[i] = Point(1000, 1000);
+		max_range[i] = Point(0, 0);
+	}
+}
+
 void PeopleFinder::run()
 {
-	//train();
-	demo();
+	train();
+	//demo();
 }
 
 void PeopleFinder::train()
 {
 	vector<string> filenames(2000);
 	vector<Mat> images(2000);
+	vector<Point> feature_nodes(11);
 	Mat tempimg, contourimg, contoursonly, distimg;
 	int i = 0;
 	const string directory = "DataSets/PedCut2013/data/completeData/left_groundtruth/*.*";
 	BlobDetector bd = BlobDetector();
+
+	init();
 
 	filenames = search_dataset_files(directory); //FORMAT: place folder in AutoSurvCV, forward slashes and end in "*.*"
 	images = load_dataset_files(filenames, directory);
 	while (!images[i].rows == 0)
 	{
 		contourimg = bd.highlight_contours(&images[i], &images[i], &contoursonly);
-		create_skeleton(&contoursonly, i);
+		feature_nodes = create_skeleton(&contoursonly, i);
 		i++;
+
+		if (!bad_skel_flag) 
+		{
+			train_compare_ranges(feature_nodes);
+		}
+		bad_skel_flag = false;
 	}
 	cout << "Classifier has been trained" << endl;
+}
+
+void PeopleFinder::train_compare_ranges(vector<Point> feature_nodes)	//Checks/Sets the boundaries for the classifier to use on the test data
+{
+	int i;
+
+	for (i = 0; i < 11; i++)
+	{
+		if (feature_nodes[i].x <= min_range[i].x)
+		{
+			min_range[i].x = feature_nodes[i].x;
+		}
+		if (feature_nodes[i].y <= min_range[i].y)
+		{
+			min_range[i].y = feature_nodes[i].y;
+		}
+		if (feature_nodes[i].x >= max_range[i].x)
+		{
+			max_range[i].x = feature_nodes[i].x;
+		}
+		if (feature_nodes[i].y >= max_range[i].y)
+		{
+			max_range[i].y = feature_nodes[i].y;
+		}
+	}
 }
 
 void PeopleFinder::demo()
@@ -61,7 +110,7 @@ void PeopleFinder::test(vector<Mat> shapes, int hull_size)
 	{
 		resize(shapes[i], current_shape, Size(64, 128));
 		create_skeleton(&current_shape, i);
-		save_image(current_shape, "faulty_imgs/", i);	//Can return the skeleton image here
+		//save_image(current_shape, "faulty_imgs/", i);	//Can return the skeleton image here
 		//imshow("Contours Only", current_shape);
 		//moveWindow("Contours Only", 192, 128);
 
@@ -112,7 +161,7 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 
 		nodes[0] = find_head_feature(shape_pixels, 5, &index_head);
 		nodes[1] = find_torso_feature(shape_pixels, 5, nodes[0], index_head, &index_torso);
-		if (is_within_bound(nodes[1], contoursonly->rows, contoursonly->cols))	//Torso gives indication on whether the shape is valid or not
+		if (is_within_bound(nodes[1], contoursonly->rows, contoursonly->cols))	//Torso gives good indication on whether the shape is valid or not
 		{
 			nodes[2] = find_waist_feature(shape_pixels, 5, nodes[1], index_torso, &index_waist);
 			calc_halfway_torso_dist(nodes[1], nodes[2], &halfway_node, &halfway_dist);
@@ -131,11 +180,13 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 		else
 		{
 			cout << "Bad shape, no skeleton found" << endl;
+			bad_skel_flag = true;
 		}
 	}
 	else
 	{
 		cout << "Unable to find skeleton in image " << "(Reason: Off center)" << endl;
+		bad_skel_flag = true;
 	}
 	
 	return nodes;
@@ -291,6 +342,7 @@ Point PeopleFinder::find_waist_feature(vector<Point> shape_pixels, int threshold
 	catch (Exception e)
 	{
 		cout << "Unable to find waist feature." << endl;
+		bad_skel_flag = true;
 	}
 
 	waistnode.x = best_fit_node.x - threshold;
@@ -455,6 +507,7 @@ Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, Point torso_f
 	catch (Exception e)
 	{
 		cout << "Unable to find elbow feature" << endl;
+		bad_skel_flag = true;
 	}
 
 	elbow_node = best_fit_node;
@@ -534,6 +587,7 @@ Point PeopleFinder::find_hand_feature(vector<Point> shape_pixels, vector<Point> 
 	catch (Exception e)
 	{
 		cout << "Unable to find hand feature." << endl;
+		bad_skel_flag = true;
 	}
 
 	average_angle = average_angle / dist_iteration;
@@ -604,7 +658,7 @@ void PeopleFinder::draw_skeleton(Mat * image, vector<Point> nodes)
 	catch (Exception e)
 	{
 		cout << "Bad Skeleton, feature out of bounds." << endl;
-		//save_image(*image , "faulty_imgs/");
+		bad_skel_flag = true;
 	}
 }
 

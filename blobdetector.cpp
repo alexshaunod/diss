@@ -53,7 +53,6 @@ Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly)
 		{
 			convexHull(Mat(contours[i]), local_hull_list[hull_size], false);
 			hull_size++;
-
 		}
 	}
 
@@ -145,8 +144,16 @@ vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, vector<vector<Point>>
 		}
 		//rectangle(*src_image, topleft, botright, Vec3b(255, 255, 255));
 
-		if (botright.x != 0 && topleft.x != 0)	//Consider adding some pixels to the boundaries to give shape breathing room
+		if (botright.x != 0 && topleft.x != 0)	
 		{
+			if (is_within_bound(Point(topleft.x - edge_space, topleft.y - edge_space), src_image->rows, src_image->cols) && 
+				is_within_bound(Point(botright.x + edge_space, botright.y + edge_space), src_image->rows, src_image->cols))
+			{
+				topleft.x -= edge_space;
+				topleft.y -= edge_space;
+				botright.x += edge_space;
+				botright.y += edge_space;
+			}
 			roi = Rect(topleft.x, topleft.y, botright.x - topleft.x, botright.y - topleft.y);
 			resize(localsrc(roi), bg_shapes[i], Size(64, 128));
 

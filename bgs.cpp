@@ -3,7 +3,7 @@
 int BGS::run()
 {
 	BlobDetector bd = BlobDetector();
-	PeopleFinder pf = PeopleFinder();
+	PeopleFinder pf = PeopleFinder(vector<Point>(11), vector<Point>(11), false);
 	VideoCapture capCam = VideoCapture();
 	Mat frame, frame2, fgMaskKNN, filteredMask, contourimg, contoursonly;
 	vector<Mat> large_shapes;
@@ -43,7 +43,7 @@ int BGS::run()
 				if (frame_number - (fps * iteration) == fps)	//This equation ensures that it runs the pedestrian detector every second of the video
 				{
 					iteration++;
-					large_shapes = bd.get_large_shapes(&filteredMask, bd.get_hull_list(), bd.get_hull_size(), 2);
+					large_shapes = bd.get_large_shapes(&filteredMask, bd.get_hull_list(), bd.get_hull_size(), 5);
 					pf.test(large_shapes, bd.get_hull_size());
 				}
 			}

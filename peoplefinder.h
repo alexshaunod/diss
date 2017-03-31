@@ -18,10 +18,16 @@ using namespace std;
 class PeopleFinder
 {
 	private :
+		vector<Point> min_range;
+		vector<Point> max_range;
+		bool bad_skel_flag;
 
 	public :
+		PeopleFinder(vector<Point> min, vector<Point> max, bool bad);
+		void init();
 		void run();
 		void train();
+		void train_compare_ranges(vector<Point> feature_nodes);
 		void demo();
 		void test(vector<Mat> shapes, int hull_size);
 
