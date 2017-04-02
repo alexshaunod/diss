@@ -4,6 +4,7 @@ int BGS::run()
 {
 	BlobDetector bd = BlobDetector();
 	PeopleFinder pf = PeopleFinder(vector<Point>(11), vector<Point>(11), false);
+	RecordLog rlog = RecordLog();
 	VideoCapture capCam = VideoCapture();
 	Mat frame, frame2, fgMaskKNN, filteredMask, contourimg, contoursonly;
 	vector<Mat> large_shapes;
@@ -17,6 +18,8 @@ int BGS::run()
 	//capCam.open("DataSets/CAVIAR/OneShopOneWait2front.mpg"); //GRAYSCALE INTERRUPTS SLIGHTLY, BUT REFLECTIONS MOSTLY SUPPRESSED
 	//capCam.open("DataSets/CAVIAR/OneStopNoEnter1cor.mpg");	//Pedestrian shapes appear fairly well, slight reflections
 	
+	rlog.init_log();
+
 	if (capCam.isOpened())
 	{
 		fps = capCam.get(CV_CAP_PROP_FPS);
@@ -57,6 +60,7 @@ int BGS::run()
 		}
 	}
 	capCam.release();
+
 	return 0;
 }
 

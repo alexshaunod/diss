@@ -11,6 +11,7 @@
 #include "opencv2/videoio.hpp"
 #include "peoplefinder.h"
 #include "blobdetector.h"
+#include "recordlog.h"
 
 class BGS
 {
