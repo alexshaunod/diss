@@ -119,25 +119,17 @@
   <ItemGroup>
     <ClCompile Include="bgs.cpp" />
     <ClCompile Include="blobdetector.cpp" />
-    <ClCompile Include="branch.cpp" />
-    <ClCompile Include="haarcascade.cpp" />
-    <ClCompile Include="hogcascade.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="peoplefinder.cpp" />
+    <ClCompile Include="record.cpp" />
     <ClCompile Include="recordlog.cpp" />
-    <ClCompile Include="screenobserver.cpp" />
-    <ClCompile Include="visualoverlay.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bgs.h" />
     <ClInclude Include="blobdetector.h" />
-    <ClInclude Include="branch.h" />
-    <ClInclude Include="haarcascade.h" />
-    <ClInclude Include="hogcascade.h" />
     <ClInclude Include="peoplefinder.h" />
+    <ClInclude Include="record.h" />
     <ClInclude Include="recordlog.h" />
-    <ClInclude Include="screenobserver.h" />
-    <ClInclude Include="visualoverlay.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

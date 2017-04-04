@@ -18,18 +18,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="screenobserver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="visualoverlay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="haarcascade.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="hogcascade.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="bgs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,26 +27,14 @@
     <ClCompile Include="peoplefinder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="branch.cpp">
+    <ClCompile Include="recordlog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="recordlog.cpp">
+    <ClCompile Include="record.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="screenobserver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="visualoverlay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="haarcascade.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hogcascade.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="bgs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -68,10 +44,10 @@
     <ClInclude Include="peoplefinder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="branch.h">
+    <ClInclude Include="recordlog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="recordlog.h">
+    <ClInclude Include="record.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

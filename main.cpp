@@ -1,9 +1,5 @@
 #include <iostream>
 #include "opencv2/highgui/highgui.hpp"
-#include "screenobserver.h"
-#include "visualoverlay.h"
-#include "haarcascade.h"
-#include "hogcascade.h"
 #include "bgs.h"
 #include "peoplefinder.h"
 

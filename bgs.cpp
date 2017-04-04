@@ -9,16 +9,17 @@ int BGS::run()
 	Mat frame, frame2, fgMaskKNN, filteredMask, contourimg, contoursonly;
 	vector<Mat> large_shapes;
 	Ptr<BackgroundSubtractor> pKNN, pMOG2;
+	const char *videoPath = "DataSets/CAVIAR/OneStopEnter2cor.mpg";
 	int fps, frame_number = 0, iteration = 0;
 
 	pKNN = createBackgroundSubtractorKNN(750, 400, false);
 
 	//capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg"); //MOST DIFFICULT VIDEO
-	capCam.open("DataSets/CAVIAR/OneStopEnter2cor.mpg"); //REFLECTIONS SUPPRESSED, BEST VIDEO FOR HIGHLIGHTING INDIVIDUAL MOVEMENT
+	capCam.open(videoPath); //REFLECTIONS SUPPRESSED, BEST VIDEO FOR HIGHLIGHTING INDIVIDUAL MOVEMENT
 	//capCam.open("DataSets/CAVIAR/OneShopOneWait2front.mpg"); //GRAYSCALE INTERRUPTS SLIGHTLY, BUT REFLECTIONS MOSTLY SUPPRESSED
 	//capCam.open("DataSets/CAVIAR/OneStopNoEnter1cor.mpg");	//Pedestrian shapes appear fairly well, slight reflections
 	
-	rlog.init_log();
+	rlog.init_log(videoPath);
 
 	if (capCam.isOpened())
 	{
@@ -48,6 +49,7 @@ int BGS::run()
 					iteration++;
 					large_shapes = bd.get_large_shapes(&filteredMask, bd.get_hull_list(), bd.get_hull_size(), 5);
 					pf.test(large_shapes, bd.get_hull_size());
+					rlog.new_record(capCam.get(CV_CAP_PROP_POS_MSEC), frame, contourimg, "something");
 				}
 			}
 			else
@@ -60,6 +62,7 @@ int BGS::run()
 		}
 	}
 	capCam.release();
+	rlog.close_log();
 
 	return 0;
 }
