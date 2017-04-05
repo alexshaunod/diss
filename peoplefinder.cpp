@@ -29,7 +29,7 @@ void PeopleFinder::train()
 	Mat tempimg, contourimg, contoursonly, distimg;
 	int i = 0;
 	const string directory = "DataSets/PedCut2013/data/completeData/left_groundtruth/*.*";
-	BlobDetector bd = BlobDetector();
+	BlobDetector bd = BlobDetector(vector<Mat>(20));
 
 	init();
 
@@ -82,7 +82,7 @@ void PeopleFinder::demo()
 	Mat tempimg, contourimg, contoursonly, distimg;
 	int i = 0;
 	const string directory = "DataSets/PedCut2013/data/completeData/left_groundtruth/*.*";
-	BlobDetector bd = BlobDetector();
+	BlobDetector bd = BlobDetector(vector<Mat>(20));
 
 	filenames = search_dataset_files(directory); //FORMAT: place folder in AutoSurvCV, forward slashes and end in "*.*"
 	images = load_dataset_files(filenames, directory);
@@ -101,24 +101,55 @@ void PeopleFinder::demo()
 		i++;
 	}
 }
-void PeopleFinder::test(vector<Mat> shapes, int hull_size)
+void PeopleFinder::test(vector<Mat> *shapes, int hull_size)
 {
-	Mat current_shape;
+	vector<Point> skeleton;
+	verdicts = vector<string>(20);
 	int i = 0;
+	vector<Mat>& shapes_ref = *shapes;
 
-	while (shapes[i].rows != 0)
-	{
-		resize(shapes[i], current_shape, Size(64, 128));
-		create_skeleton(&current_shape, i);
-		//save_image(current_shape, "faulty_imgs/", i);	//Can return the skeleton image here
-		//imshow("Contours Only", current_shape);
-		//moveWindow("Contours Only", 192, 128);
-
-		//waitKey(0);
-		//destroyWindow("Contours Only");
+	while (shapes_ref[i].rows != 0)
+	{	
+		skeleton = create_skeleton(&shapes_ref[i], i);
+		verdicts[i] = judge_features(skeleton);
 		i++;
 	}
-	
+}
+
+string PeopleFinder::judge_features(vector<Point> nodes)
+{
+	string verdict;
+	int feature_score = 0;
+
+	for (int i = 0; i < 11; i++)
+	{
+		if (is_within_bound(nodes[i], min_range[i].x, min_range[i].y , max_range[i].x, max_range[i].y))
+		{
+			feature_score++;
+		}
+	}
+
+	cout << feature_score << endl;
+
+	if (feature_score >= 7)
+	{
+		verdict = "Pedestrian";
+	}
+	else if (feature_score >= 3)
+	{
+		verdict = "Something";
+	}
+	else
+	{
+		verdict = "Noise";
+	}
+
+	return verdict;
+}
+
+vector<string> PeopleFinder::get_verdicts()
+{
+	return verdicts;
 }
 
 vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
@@ -161,7 +192,7 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 
 		nodes[0] = find_head_feature(shape_pixels, 5, &index_head);
 		nodes[1] = find_torso_feature(shape_pixels, 5, nodes[0], index_head, &index_torso);
-		if (is_within_bound(nodes[1], contoursonly->rows, contoursonly->cols))	//Torso gives good indication on whether the shape is valid or not
+		if (is_within_bound(nodes[1], 0 , 0, contoursonly->rows, contoursonly->cols))	//Torso gives good indication on whether the shape is valid or not
 		{
 			nodes[2] = find_waist_feature(shape_pixels, 5, nodes[1], index_torso, &index_waist);
 			calc_halfway_torso_dist(nodes[1], nodes[2], &halfway_node, &halfway_dist);
@@ -566,7 +597,7 @@ Point PeopleFinder::find_hand_feature(vector<Point> shape_pixels, vector<Point> 
 
 			for (i = 0; i < 8; i++)
 			{
-				if (is_within_bound(neighbours[i], contours->rows, contours->cols)) //don't check out of bounds neighbours
+				if (is_within_bound(neighbours[i], 0, 0, contours->rows, contours->cols)) //don't check out of bounds neighbours
 				{
 					if (contours->at<Vec3b>(neighbours[i].x, neighbours[i].y) == Vec3b(0, 0, 255) && neighbours[i] != prev_valid_pixel)
 					{
@@ -662,9 +693,9 @@ void PeopleFinder::draw_skeleton(Mat * image, vector<Point> nodes)
 	}
 }
 
-bool PeopleFinder::is_within_bound(Point node, int x_bound, int y_bound)
+bool PeopleFinder::is_within_bound(Point node, int lower_x, int lower_y, int x_bound, int y_bound)
 {
-	return (node.x >= 0 && node.x < x_bound && node.y >= 0 && node.y < y_bound);
+	return (node.x >= lower_x && node.x < x_bound && node.y >= lower_y && node.y < y_bound);
 }
 
 vector<string> PeopleFinder::search_dataset_files(const string directory)

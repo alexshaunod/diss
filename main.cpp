@@ -8,12 +8,6 @@ using namespace std;
 
 int main()
 {
-	//HogCascade hc = HogCascade();
-	//HaarCascade hc = HaarCascade();
-	//hc.run();
-
-	//PeopleFinder pf = PeopleFinder(vector<Point>(11), vector<Point>(11), false);
-	//pf.run();
 	BGS bgs = BGS();
 	bgs.run();
 	std::cin.ignore();

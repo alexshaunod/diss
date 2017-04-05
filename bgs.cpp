@@ -2,9 +2,9 @@
 
 int BGS::run()
 {
-	BlobDetector bd = BlobDetector();
+	BlobDetector bd = BlobDetector(vector<Mat>(20));
 	PeopleFinder pf = PeopleFinder(vector<Point>(11), vector<Point>(11), false);
-	RecordLog rlog = RecordLog();
+	rlog = RecordLog();
 	VideoCapture capCam = VideoCapture();
 	Mat frame, frame2, fgMaskKNN, filteredMask, contourimg, contoursonly;
 	vector<Mat> large_shapes;
@@ -12,14 +12,15 @@ int BGS::run()
 	const char *videoPath = "DataSets/CAVIAR/OneStopEnter2cor.mpg";
 	int fps, frame_number = 0, iteration = 0;
 
+	rlog.init_log(videoPath);
+	pf.train();
+
 	pKNN = createBackgroundSubtractorKNN(750, 400, false);
 
 	//capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg"); //MOST DIFFICULT VIDEO
 	capCam.open(videoPath); //REFLECTIONS SUPPRESSED, BEST VIDEO FOR HIGHLIGHTING INDIVIDUAL MOVEMENT
 	//capCam.open("DataSets/CAVIAR/OneShopOneWait2front.mpg"); //GRAYSCALE INTERRUPTS SLIGHTLY, BUT REFLECTIONS MOSTLY SUPPRESSED
 	//capCam.open("DataSets/CAVIAR/OneStopNoEnter1cor.mpg");	//Pedestrian shapes appear fairly well, slight reflections
-	
-	rlog.init_log(videoPath);
 
 	if (capCam.isOpened())
 	{
@@ -47,14 +48,14 @@ int BGS::run()
 				if (frame_number - (fps * iteration) == fps)	//This equation ensures that it runs the pedestrian detector every second of the video
 				{
 					iteration++;
-					large_shapes = bd.get_large_shapes(&filteredMask, bd.get_hull_list(), bd.get_hull_size(), 5);
-					pf.test(large_shapes, bd.get_hull_size());
-					rlog.new_record(capCam.get(CV_CAP_PROP_POS_MSEC), frame, contourimg, "something");
+					large_shapes = bd.get_large_shapes(&frame, &filteredMask, bd.get_hull_list(), bd.get_hull_size(), 5);
+					pf.test(&large_shapes, bd.get_hull_size());
+					run_frame_analysis(capCam.get(CV_CAP_PROP_POS_MSEC), bd.get_src_shapes(), large_shapes, pf.get_verdicts());
 				}
 			}
 			else
 			{
-				printf(" --(!) No captured frame -- Break!"); break;
+				printf(" --(!) Video has finished playing -- Break!"); break;
 			}
 
 			int c = waitKey(10);
@@ -65,6 +66,17 @@ int BGS::run()
 	rlog.close_log();
 
 	return 0;
+}
+
+void BGS::run_frame_analysis(int milliseconds, vector<Mat> src_shapes, vector<Mat> large_shapes, vector<string> verdicts)
+{
+	int i = 0;
+
+	while (large_shapes[i].rows != 0)
+	{
+		rlog.new_record(milliseconds, src_shapes[i], large_shapes[i], verdicts[i]);
+		i++;
+	}
 }
 
 Mat BGS::filter_noise(Mat *fgmask)

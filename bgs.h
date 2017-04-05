@@ -15,8 +15,11 @@
 
 class BGS
 {
+	private:
+		RecordLog rlog;
 	public :
 		int run();
+		void run_frame_analysis(int milliseconds, vector<Mat> src_shapes, vector<Mat> large_shapes, vector<string> verdicts);
 		Mat filter_noise(Mat *fgmask);
 		Mat erode_first(Mat *srcimg, Mat *element);
 		Mat dilate_first(Mat *srcimg, Mat *element);

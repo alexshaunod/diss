@@ -16,13 +16,16 @@ class BlobDetector
 	private:
 		vector<vector<Point>> hull_list;
 		int hull_size;
+		vector<Mat> src_shapes;
 
 	public:
+		BlobDetector(vector<Mat> src_shapes);
 		int run();
 		void examine_frame(Mat *frame,Mat *fgmask);
 		Mat highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly);
 		void draw_annotations(Mat * frame, Mat * drawn_contours, Mat *contoursonly, vector<vector<Point>> contours, vector<Vec4i> hierarchy, vector<vector<Point>> hull, int i);
-		vector<Mat> get_large_shapes(Mat * src_image, vector<vector<Point>> hull, int hullsize, int edge_space);
+		vector<Mat> get_large_shapes(Mat *src_image, Mat * filtered_mask, vector<vector<Point>> hull, int hullsize, int edge_space);
+		vector<Mat> get_src_shapes();
 		bool is_within_bound(Point node, int x_bound, int y_bound);
 		vector<vector<Point>> get_hull_list();
 		int get_hull_size();

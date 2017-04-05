@@ -19,6 +19,7 @@ class PeopleFinder
 	private :
 		vector<Point> min_range;
 		vector<Point> max_range;
+		vector<string> verdicts;
 		bool bad_skel_flag;
 
 	public :
@@ -28,7 +29,11 @@ class PeopleFinder
 		void train();
 		void train_compare_ranges(vector<Point> feature_nodes);
 		void demo();
-		void test(vector<Mat> shapes, int hull_size);
+		void test(vector<Mat> *shapes, int hull_size);
+
+		string judge_features(vector<Point> nodes);
+
+		vector<string> get_verdicts();
 
 		vector<Point> create_skeleton(Mat * contoursonly, int imagenum);
 
@@ -48,7 +53,7 @@ class PeopleFinder
 
 		void draw_skeleton(Mat *image, vector<Point> nodes);
 
-		bool is_within_bound(Point node, int x_bound, int y_bound);
+		bool is_within_bound(Point node, int lower_x, int lower_y, int x_bound, int y_bound);
 
 		vector<string> search_dataset_files(const string directory);
 		vector<Mat> load_dataset_files(vector<string> filenames, const string directory);

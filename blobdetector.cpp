@@ -1,5 +1,9 @@
 #include "blobdetector.h"
 
+BlobDetector::BlobDetector(vector<Mat> src_shapes)
+	: src_shapes(src_shapes)
+{}
+
 int BlobDetector::run()
 {
 	return 0;
@@ -70,15 +74,6 @@ Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly)
 
 void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, Mat *contoursonly, vector<vector<Point>> contours, vector<Vec4i> hierarchy, vector<vector<Point>> hull, int i)
 {
-	drawContours(*frame,
-		contours,
-		i,
-		Scalar(0, 0, 255),
-		1,
-		8,
-		hierarchy,
-		0,
-		Point());
 	drawContours(*drawn_contours,
 		contours,
 		i,
@@ -108,13 +103,14 @@ void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, Mat *contou
 		Point());
 }
 
-vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, vector<vector<Point>> hull, int hullsize, int edge_space)
+vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, Mat *filtered_mask, vector<vector<Point>> hull, int hullsize, int edge_space)
 {
 	vector<Mat> shapes(30), bg_shapes(30);
-	Point topleft = Point(src_image->rows,src_image->cols);
+	Point topleft = Point(filtered_mask->rows,filtered_mask->cols);
 	Point botright = Point(0,0);
 	Rect roi;
 	Mat localsrc = *src_image;
+	Mat localfilter = *filtered_mask;
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
 
@@ -142,12 +138,12 @@ vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, vector<vector<Point>>
 				botright.y = hull[i][k].y;
 			}
 		}
-		//rectangle(*src_image, topleft, botright, Vec3b(255, 255, 255));
+		//rectangle(*filtered_mask, topleft, botright, Vec3b(255, 255, 255));
 
 		if (botright.x != 0 && topleft.x != 0)	
 		{
-			if (is_within_bound(Point(topleft.x - edge_space, topleft.y - edge_space), src_image->rows, src_image->cols) && 
-				is_within_bound(Point(botright.x + edge_space, botright.y + edge_space), src_image->rows, src_image->cols))
+			if (is_within_bound(Point(topleft.x - edge_space, topleft.y - edge_space), filtered_mask->rows, filtered_mask->cols) && 
+				is_within_bound(Point(botright.x + edge_space, botright.y + edge_space), filtered_mask->rows, filtered_mask->cols))
 			{
 				topleft.x -= edge_space;
 				topleft.y -= edge_space;
@@ -155,23 +151,27 @@ vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, vector<vector<Point>>
 				botright.y += edge_space;
 			}
 			roi = Rect(topleft.x, topleft.y, botright.x - topleft.x, botright.y - topleft.y);
-			resize(localsrc(roi), bg_shapes[i], Size(64, 128));
+			src_shapes[i] = localsrc(roi);	//GET THE SOURCE OF THE SHAPE FOR THE RECORD
+			resize(localfilter(roi), bg_shapes[i], Size(64, 128));
 
 			findContours(bg_shapes[i], contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));	//draw contours around the image again for clearer outlines.
 			shapes[i] = Mat::zeros(bg_shapes[i].size(), CV_8UC3);
-			drawContours(shapes[i],	contours,	contours.size()-1,	Scalar(0, 0, 255),	1,	8,	hierarchy,	0,	Point());
-
-			//imshow("extract", shapes[i]);
-			//moveWindow("extract", 128, 328);
-			//waitKey(0);
-			//destroyWindow("extract");
+			for (int n = 0; n < contours.size(); n++)
+			{
+				drawContours(shapes[i], contours, n, Scalar(0, 0, 255), 1, 8, hierarchy, 0, Point());
+			}
 		}
 
-		topleft = Point(src_image->rows, src_image->cols);
+		topleft = Point(filtered_mask->rows, filtered_mask->cols);
 		botright = Point(0, 0);
 	}
 
 	return shapes;
+}
+
+vector<Mat> BlobDetector::get_src_shapes()
+{
+	return src_shapes;
 }
 
 bool BlobDetector::is_within_bound(Point node, int x_bound, int y_bound)
