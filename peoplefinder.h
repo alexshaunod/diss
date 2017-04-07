@@ -20,10 +20,11 @@ class PeopleFinder
 		vector<Point> min_range;
 		vector<Point> max_range;
 		vector<string> verdicts;
+		string training_path;
 		bool bad_skel_flag;
 
 	public :
-		PeopleFinder(vector<Point> min, vector<Point> max, bool bad);
+		PeopleFinder(vector<Point> min, vector<Point> max, string path, bool bad);
 		void init();
 		void run();
 		void train();

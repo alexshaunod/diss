@@ -1,24 +1,27 @@
 #include "bgs.h"
 
+BGS::BGS(string t_path, string v_path)
+	: training_path(t_path), video_path(v_path)
+{}
+
 int BGS::run()
 {
 	BlobDetector bd = BlobDetector(vector<Mat>(20));
-	PeopleFinder pf = PeopleFinder(vector<Point>(11), vector<Point>(11), false);
+	PeopleFinder pf = PeopleFinder(vector<Point>(11), vector<Point>(11), training_path, false);
 	rlog = RecordLog();
 	VideoCapture capCam = VideoCapture();
 	Mat frame, frame2, fgMaskKNN, filteredMask, contourimg, contoursonly;
 	vector<Mat> large_shapes;
 	Ptr<BackgroundSubtractor> pKNN, pMOG2;
-	const char *videoPath = "DataSets/CAVIAR/OneStopEnter2cor.mpg";
 	int fps, frame_number = 0, iteration = 0;
 
-	rlog.init_log(videoPath);
+	rlog.init_log(video_path);
 	pf.train();
 
 	pKNN = createBackgroundSubtractorKNN(750, 400, false);
 
 	//capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg"); //MOST DIFFICULT VIDEO
-	capCam.open(videoPath); //REFLECTIONS SUPPRESSED, BEST VIDEO FOR HIGHLIGHTING INDIVIDUAL MOVEMENT
+	capCam.open(video_path); //REFLECTIONS SUPPRESSED, BEST VIDEO FOR HIGHLIGHTING INDIVIDUAL MOVEMENT
 	//capCam.open("DataSets/CAVIAR/OneShopOneWait2front.mpg"); //GRAYSCALE INTERRUPTS SLIGHTLY, BUT REFLECTIONS MOSTLY SUPPRESSED
 	//capCam.open("DataSets/CAVIAR/OneStopNoEnter1cor.mpg");	//Pedestrian shapes appear fairly well, slight reflections
 
@@ -42,20 +45,20 @@ int BGS::run()
 				imshow("Video", frame);
 				imshow("Contours", contourimg);
 				moveWindow("Video", 128, 128);
-				moveWindow("KNN", 512, 128);
-				moveWindow("Contours", 896, 128);
+				moveWindow("KNN", 128 + frame.cols, 128);
+				moveWindow("Contours", 128 + (frame.cols*2), 128);
 
 				if (frame_number - (fps * iteration) == fps)	//This equation ensures that it runs the pedestrian detector every second of the video
 				{
 					iteration++;
-					large_shapes = bd.get_large_shapes(&frame, &filteredMask, bd.get_hull_list(), bd.get_hull_size(), 5);
+					large_shapes = bd.get_large_shapes(&frame, &filteredMask, bd.get_hull_list(), bd.get_hull_size(), 10);
 					pf.test(&large_shapes, bd.get_hull_size());
 					run_frame_analysis(capCam.get(CV_CAP_PROP_POS_MSEC), bd.get_src_shapes(), large_shapes, pf.get_verdicts());
 				}
 			}
 			else
 			{
-				printf(" --(!) Video has finished playing -- Break!"); break;
+				printf(" --(!) Video has finished playing -- Break!\n"); break;
 			}
 
 			int c = waitKey(10);

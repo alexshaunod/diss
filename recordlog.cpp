@@ -1,6 +1,6 @@
 #include "recordlog.h"
 
-void RecordLog::init_log(const char *videoPath)
+void RecordLog::init_log(string videoPath)
 {
 	stringstream ss;
 	string path;
@@ -14,8 +14,14 @@ void RecordLog::init_log(const char *videoPath)
 
 	file.open(path);
 	file << "<html>\n";
+	file << "<style>\n";
+	file << "body {\n background-color: #ffeecc;\n}\n";
+	file << "table {\n width:100%;\n}\n";
+	file << "table, tr, th, td {\n border: 1px solid black;  border-collapse: collapse;\n}\n";
+	file << "</style>\n";
+	file << "<body>\n";
 	file << "<p>Source file: " << videoPath << "</p>\n";
-	file << "<table style=\"width:100%\">\n";
+	file << "<table>\n";
 	file << "<tr>\n" << "<th>Timestamp</th>\n" <<
 		"<th>Source</th>\n" <<
 		"<th>Analysis</th>\n" << 
@@ -93,6 +99,7 @@ void RecordLog::convert_milliseconds(int mill_seconds, int *hh, int *mm, int *ss
 void RecordLog::close_log()
 {
 	file << "</table>\n";
+	file << "</body>\n";
 	file << "</html>";
 
 	file.close();

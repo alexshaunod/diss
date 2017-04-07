@@ -121,14 +121,12 @@
     <ClCompile Include="blobdetector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="peoplefinder.cpp" />
-    <ClCompile Include="record.cpp" />
     <ClCompile Include="recordlog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bgs.h" />
     <ClInclude Include="blobdetector.h" />
     <ClInclude Include="peoplefinder.h" />
-    <ClInclude Include="record.h" />
     <ClInclude Include="recordlog.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

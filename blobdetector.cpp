@@ -142,8 +142,8 @@ vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, Mat *filtered_mask, v
 
 		if (botright.x != 0 && topleft.x != 0)	
 		{
-			if (is_within_bound(Point(topleft.x - edge_space, topleft.y - edge_space), filtered_mask->rows, filtered_mask->cols) && 
-				is_within_bound(Point(botright.x + edge_space, botright.y + edge_space), filtered_mask->rows, filtered_mask->cols))
+			if (is_within_bound(Point(topleft.x - edge_space, topleft.y - edge_space), filtered_mask->cols, filtered_mask->rows) && 
+				is_within_bound(Point(botright.x + edge_space, botright.y + edge_space), filtered_mask->cols, filtered_mask->rows))
 			{
 				topleft.x -= edge_space;
 				topleft.y -= edge_space;

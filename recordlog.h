@@ -23,7 +23,7 @@ class RecordLog
 		int total_records;
 
 	public:
-		void init_log(const char *videoPath);
+		void init_log(string videoPath);
 
 		void new_record(int mill_seconds, Mat src_image, Mat contour_image, string verdict);
 

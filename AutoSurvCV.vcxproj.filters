@@ -30,9 +30,6 @@
     <ClCompile Include="recordlog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="record.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bgs.h">
@@ -45,9 +42,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="recordlog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="record.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

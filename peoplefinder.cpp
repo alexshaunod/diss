@@ -1,7 +1,7 @@
 #include "peoplefinder.h"
 
-PeopleFinder::PeopleFinder(vector<Point> min, vector<Point> max, bool bad)
-	: min_range(min), max_range(max), bad_skel_flag(bad)
+PeopleFinder::PeopleFinder(vector<Point> min, vector<Point> max, string path, bool bad)
+	: min_range(min), max_range(max), training_path(path), bad_skel_flag(bad)
 {}
 
 void PeopleFinder::init()
@@ -28,7 +28,7 @@ void PeopleFinder::train()
 	vector<Point> feature_nodes(11);
 	Mat tempimg, contourimg, contoursonly, distimg;
 	int i = 0;
-	const string directory = "DataSets/PedCut2013/data/completeData/left_groundtruth/*.*";
+	const string directory = training_path;
 	BlobDetector bd = BlobDetector(vector<Mat>(20));
 
 	init();
@@ -81,7 +81,7 @@ void PeopleFinder::demo()
 	vector<Mat> images(2000);
 	Mat tempimg, contourimg, contoursonly, distimg;
 	int i = 0;
-	const string directory = "DataSets/PedCut2013/data/completeData/left_groundtruth/*.*";
+	const string directory = training_path;
 	BlobDetector bd = BlobDetector(vector<Mat>(20));
 
 	filenames = search_dataset_files(directory); //FORMAT: place folder in AutoSurvCV, forward slashes and end in "*.*"
@@ -128,8 +128,6 @@ string PeopleFinder::judge_features(vector<Point> nodes)
 			feature_score++;
 		}
 	}
-
-	cout << feature_score << endl;
 
 	if (feature_score >= 7)
 	{
