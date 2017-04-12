@@ -69,8 +69,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\OpenCV-3.2.0\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\OpenCV-3.2.0\opencv\build\x64\vc14\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\MajorProject\AutoSurvCV;C:\OpenCV-3.2.0\opencv\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\MajorProject\AutoSurvCV;C:\OpenCV-3.2.0\opencv\build\x64\vc14\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -84,6 +84,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opencv_world320d.lib;%(AdditionalDependencies)</AdditionalDependencies>

@@ -20,14 +20,19 @@ int BGS::run()
 
 	pKNN = createBackgroundSubtractorKNN(750, 400, false);
 
-	//capCam.open("DataSets/CAVIAR/WalkByShop1cor.mpg"); //MOST DIFFICULT VIDEO
 	capCam.open(video_path); //REFLECTIONS SUPPRESSED, BEST VIDEO FOR HIGHLIGHTING INDIVIDUAL MOVEMENT
-	//capCam.open("DataSets/CAVIAR/OneShopOneWait2front.mpg"); //GRAYSCALE INTERRUPTS SLIGHTLY, BUT REFLECTIONS MOSTLY SUPPRESSED
-	//capCam.open("DataSets/CAVIAR/OneStopNoEnter1cor.mpg");	//Pedestrian shapes appear fairly well, slight reflections
 
 	if (capCam.isOpened())
 	{
+		capCam.read(frame);
 		fps = capCam.get(CV_CAP_PROP_FPS);
+		imshow("KNN", frame);
+		imshow("Video", frame);
+		imshow("Contours", frame);
+		moveWindow("Video", 128, 128);
+		moveWindow("KNN", 136, 136);
+		moveWindow("Contours", 144, 144);
+
 		while (true)
 		{
 			capCam.read(frame);
@@ -44,9 +49,7 @@ int BGS::run()
 				imshow("KNN", filteredMask);
 				imshow("Video", frame);
 				imshow("Contours", contourimg);
-				moveWindow("Video", 128, 128);
-				moveWindow("KNN", 128 + frame.cols, 128);
-				moveWindow("Contours", 128 + (frame.cols*2), 128);
+	
 
 				if (frame_number - (fps * iteration) == fps)	//This equation ensures that it runs the pedestrian detector every second of the video
 				{

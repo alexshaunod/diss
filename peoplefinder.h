@@ -35,10 +35,11 @@ class PeopleFinder
 		string judge_features(vector<Point> nodes);
 
 		vector<string> get_verdicts();
+		bool get_bad_flag();
 
 		vector<Point> create_skeleton(Mat * contoursonly, int imagenum);
 
-		//void highlight_pixels(Mat * contoursonly, vector<Point>* shape_pixels, vector<Point>* outline_pixels);
+		void highlight_pixels(Mat * contoursonly, vector<Point>* shape_pixels, vector<Point>* outline_pixels);
 
 		Point find_head_feature(vector<Point> shape_pixels, int threshold, int *index_head);
 		Point find_torso_feature(vector<Point> shape_pixels, int threshold, Point head_feature, int index_head, int *index_torso);

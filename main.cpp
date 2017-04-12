@@ -6,6 +6,22 @@
 using namespace cv;
 using namespace std;
 
+/**
+ *	@file main.cpp
+ *	@desc Provides a menu for running the feature detection demo or the
+ *  video analysis, where the user can enter the file paths for the training folder
+ *  and the video file.
+ *
+ *  The demo runs the	PeopleFinder's create_skeleton() function on the images within the 
+ *  training path directory and displays the feature skeletons.
+ *
+ *  The video surveillance trains the PeopleFinder classifier using the images in the training
+ *  path directory, and runs the video file to search for pedestrians via BGS.
+ *
+ *	@author Alex O'Donnell
+ *	@version 1.00
+ */
+
 int main()
 {	
 	string response;

@@ -150,6 +150,11 @@ vector<string> PeopleFinder::get_verdicts()
 	return verdicts;
 }
 
+bool PeopleFinder::get_bad_flag()
+{
+	return bad_skel_flag;
+}
+
 vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 {
 	vector<Point> nodes(11);
@@ -157,7 +162,7 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 	vector<Point> outline_pixels(4096);
 	Point halfway_node = Point(1000, 1000);
 	bool insideshape = false;
-	int i, j, k, m, arm_width;
+	int arm_width;
 	int index_head = 0, index_torso = 0, index_waist = 0, index_shoulders = 0;
 	double halfway_dist;
 
@@ -168,25 +173,7 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 
 	if (contoursonly->at<Vec3b>(0, 0) != Vec3b(64, 0, 0) && contoursonly->at<Vec3b>(64, 32) != Vec3b(0, 0, 255)) // if the fill is outside the center, skip the image(poor quality image)
 	{
-		k = 0;
-		m = 0;
-
-		for (i = 0; i < contoursonly->rows; i++)
-		{
-			for (j = 0; j < contoursonly->cols; j++)
-			{
-				if (contoursonly->at<Vec3b>(i, j) == Vec3b(64, 0, 0))
-				{
-					shape_pixels[k] = Point(i, j);
-					k++;
-				}
-				if (contoursonly->at<Vec3b>(i, j) == Vec3b(0, 0, 255))
-				{
-					outline_pixels[m] = Point(i, j);
-					m++;
-				}
-			}
-		}
+		highlight_pixels(contoursonly, &shape_pixels, &outline_pixels);
 
 		nodes[0] = find_head_feature(shape_pixels, 5, &index_head);
 		nodes[1] = find_torso_feature(shape_pixels, 5, nodes[0], index_head, &index_torso);
@@ -222,12 +209,14 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly, int imagenum)
 
 }
 
-/*
+
 void PeopleFinder::highlight_pixels(Mat *contoursonly, vector<Point> *shape_pixels, vector<Point> *outline_pixels)
 {
 	int i, j, k, m;
 	k = 0;
 	m = 0;
+	vector<Point>& shape_pixels_ref = *shape_pixels;
+	vector<Point>& outline_pixels_ref = *outline_pixels;
 
 	for (i = 0; i < contoursonly->rows; i++)
 	{
@@ -235,18 +224,18 @@ void PeopleFinder::highlight_pixels(Mat *contoursonly, vector<Point> *shape_pixe
 		{
 			if (contoursonly->at<Vec3b>(i, j) == Vec3b(64, 0, 0))
 			{
-				shape_pixels[k] = Point(i, j);
+				shape_pixels_ref[k] = Point(i, j);
 				k++;
 			}
 			if (contoursonly->at<Vec3b>(i, j) == Vec3b(0, 0, 255))
 			{
-				outline_pixels[m] = Point(i, j);
+				outline_pixels_ref[m] = Point(i, j);
 				m++;
 			}
 		}
 	}
 }
-*/
+
 
 Point PeopleFinder::find_head_feature(vector<Point> shape_pixels, int threshold, int *index_head)
 {
