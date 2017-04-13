@@ -26,18 +26,17 @@ class PeopleFinder
 	public :
 		PeopleFinder(vector<Point> min, vector<Point> max, string path, bool bad);
 		void init();
-		void run();
 		void train();
 		void train_compare_ranges(vector<Point> feature_nodes);
 		void demo();
-		void test(vector<Mat> *shapes, int hull_size);
+		void test(vector<Mat> *shapes);
 
 		string judge_features(vector<Point> nodes);
 
 		vector<string> get_verdicts();
 		bool get_bad_flag();
 
-		vector<Point> create_skeleton(Mat * contoursonly, int imagenum);
+		vector<Point> create_skeleton(Mat * contoursonly);
 
 		void highlight_pixels(Mat * contoursonly, vector<Point>* shape_pixels, vector<Point>* outline_pixels);
 

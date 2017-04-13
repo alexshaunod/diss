@@ -1,0 +1,19 @@
+﻿1>------ Build started: Project: AutoSurvCV, Configuration: Debug x64 ------
+1>  Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24213.1 for x64
+1>  Copyright (C) Microsoft Corporation.  All rights reserved.
+1>
+1>  cl /c /ZI /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt bgs.cpp main.cpp peoplefinder.cpp
+1>
+1>  peoplefinder.cpp
+1>c:\majorproject\autosurvcv\peoplefinder.cpp(659): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+1>c:\majorproject\autosurvcv\peoplefinder.cpp(660): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+1>  bgs.cpp
+1>c:\majorproject\autosurvcv\bgs.cpp(52): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+1>c:\majorproject\autosurvcv\bgs.cpp(83): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+1>  Generating Code...
+1>  Compiling...
+1>  main.cpp
+1>  Generating Code...
+1>  AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.exe
+1>  AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.pdb (Partial PDB)
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
