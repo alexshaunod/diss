@@ -23,7 +23,7 @@ class RecordLog
 		int total_records;
 
 	public:
-		void init_log(string videoPath);
+		void init_log(string videoPath, int bgs_history, double bgs_threshold);
 
 		void new_record(int mill_seconds, Mat src_image, Mat contour_image, string verdict);
 

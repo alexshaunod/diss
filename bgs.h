@@ -19,8 +19,11 @@ class BGS
 		RecordLog rlog;
 		string training_path;
 		string video_path;
+		int bgs_history;
+		double bgs_threshold;
+
 	public :
-		BGS(string t_path, string v_path);
+		BGS(string t_path, string v_path, int history, double thresh);
 		int run();
 		void run_frame_analysis(int milliseconds, vector<Mat> src_shapes, vector<Mat> large_shapes, vector<string> verdicts);
 		Mat filter_noise(Mat *fgmask);

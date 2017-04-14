@@ -27,6 +27,8 @@ int main()
 	string response;
 	string training_path = "DataSets/PedCut2013/data/completeData/left_groundtruth/*.*";
 	string video_path = "DataSets/CVLAB/campus4-c1.avi";
+	int bgs_history = 750;
+	double bgs_threshold = 500;
 	cout << "---Welcome to AutoSurvCV. Please type an option from the menu---" << endl;
 	cout << "1. Training Demo" << endl;
 	cout << "2. Run Video Surveillance" << endl;
@@ -58,6 +60,7 @@ int main()
 			{
 				training_path = response;
 			}
+
 			cout << "Enter the path of the video you wish to use." << endl;
 			cout << "Input 'default' to use the default video: " << video_path << endl;
 			cin >> response;
@@ -65,7 +68,23 @@ int main()
 			{
 				video_path = response;
 			}
-			BGS bgs = BGS(training_path, video_path);
+
+			cout << "Enter the BGS history length. Recommended: " << bgs_history << endl;
+			cin >> bgs_history;
+			if (cin.fail())
+			{
+				cout << "Please enter a number" << endl;
+				break;
+			}
+
+			cout << "Enter the threshold on squared distance pixels and the sample. Recommended: " << bgs_threshold << endl;
+			cin >> bgs_threshold;
+			if (cin.fail())
+			{
+				cout << "Please enter a number" << endl;
+				break;
+			}
+			BGS bgs = BGS(training_path, video_path, bgs_history, bgs_threshold);
 			bgs.run();
 			break;
 		}

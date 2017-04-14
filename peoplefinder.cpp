@@ -35,12 +35,12 @@ void PeopleFinder::init()
 }
 
 /**
-*  @desc Applies the BlobDetector's highlight_contours function to each image in the
-*  training directory. Assumes each image contains the ground truth of a pedestrian
-*  shape. Attempts to create a feature skeleton within each image, which is used to 
-*  compare the minimum and maximum boundaries of where the classifier will look for
-*  features during testing.
-*/
+ *  @desc Applies the BlobDetector's highlight_contours function to each image in the
+ *  training directory. Assumes each image contains the ground truth of a pedestrian
+ *  shape. Attempts to create a feature skeleton within each image, which is used to 
+ *  compare the minimum and maximum boundaries of where the classifier will look for
+ *  features during testing.
+ */
 void PeopleFinder::train()
 {
 	vector<string> filenames(2000);
@@ -55,6 +55,7 @@ void PeopleFinder::train()
 
 	filenames = search_dataset_files(directory); //FORMAT: place folder in AutoSurvCV, forward slashes and end in "*.*"
 	images = load_dataset_files(filenames, directory);
+	cout << "Training the PeopleFinder classifier... Please Wait..." << endl;
 	while (!images[i].rows == 0)
 	{
 		contourimg = bd.highlight_contours(&images[i], &images[i], &contoursonly);
@@ -71,10 +72,10 @@ void PeopleFinder::train()
 }
 
 /**
-*  @desc Checks/Sets the boundaries for the classifier to use on the test data
-*
-*  @param vector<Point> feature nodes - positions of each feature in the current skeleton
-*/
+ *  @desc Checks/Sets the boundaries for the classifier to use on the test data
+ *
+ *  @param vector<Point> feature nodes - positions of each feature in the current skeleton
+ */
 void PeopleFinder::train_compare_ranges(vector<Point> feature_nodes)
 {
 	int i;
@@ -101,9 +102,9 @@ void PeopleFinder::train_compare_ranges(vector<Point> feature_nodes)
 }
 
 /**
-*  @desc Similar to the train() function except it displays the feature skeletons
-*  it creates for each image in the training directory
-*/
+ *  @desc Similar to the train() function except it displays the feature skeletons
+ *  it creates for each image in the training directory
+ */
 void PeopleFinder::demo()
 {
 	vector<string> filenames(2000);
@@ -131,10 +132,10 @@ void PeopleFinder::demo()
 }
 
 /**
-*  @desc Creates a feature skeleton within each shape, and classifies them.
-*
-*  @param vector<Point> *shapes - taken from the current contour frame
-*/
+ *  @desc Creates a feature skeleton within each shape, and classifies them.
+ *
+ *  @param vector<Point> *shapes - taken from the current contour frame
+ */
 void PeopleFinder::test(vector<Mat> *shapes)
 {
 	vector<Point> skeleton;
@@ -151,13 +152,13 @@ void PeopleFinder::test(vector<Mat> *shapes)
 }
 
 /**
-*  @desc Classifies the skeleton, result depends on the number of features that fall within
-*  the minimum/maximum x/y ranges.
-*
-*  @param vector<Point> feature nodes - positions of each feature in the current skeleton
-*
-*  @returns string verdict - the classification
-*/
+ *  @desc Classifies the skeleton, result depends on the number of features that fall within
+ *  the minimum/maximum x/y ranges.
+ *
+ *  @param vector<Point> feature nodes - positions of each feature in the current skeleton
+ *
+ *  @returns string verdict - the classification
+ */
 string PeopleFinder::judge_features(vector<Point> nodes)
 {
 	string verdict;
@@ -198,14 +199,14 @@ bool PeopleFinder::get_bad_flag()
 }
 
 /**
-*  @desc Fills each pixel inside the contour shape with blue to distinguish them
-*  from outer pixels. Calls each body part detection function to create a vector of
-*  feature positions.
-*
-*  @param Mat *contoursonly - the contour only shape
-*
-*  @returns vector<Point> nodes - the x/y positions of each body part
-*/
+ *  @desc Fills each pixel inside the contour shape with blue to distinguish them
+ *  from outer pixels. Calls each body part detection function to create a vector of
+ *  feature positions.
+ *
+ *  @param Mat *contoursonly - the contour only shape
+ *
+ *  @returns vector<Point> nodes - the x/y positions of each body part
+ */
 vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly)
 {
 	vector<Point> nodes(11);
@@ -246,13 +247,11 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly)
 		}
 		else
 		{
-			cout << "Bad shape, no skeleton found" << endl;
 			bad_skel_flag = true;
 		}
 	}
 	else
 	{
-		cout << "Unable to find skeleton in image " << "(Reason: Off center)" << endl;
 		bad_skel_flag = true;
 	}
 	
@@ -261,12 +260,12 @@ vector<Point> PeopleFinder::create_skeleton(Mat *contoursonly)
 }
 
 /**
-*  @desc saves the x/y positions of the pixels within and on the outline of the shape
-*
-*  @param Mat *contoursonly - the contours of the shape
-*  @param vector<Point> *shapes_pixels - x/y positions within the shape
-*  @param vector<Point> *outline_pixels - x/y positions in the outline of the shape
-*/
+ *  @desc saves the x/y positions of the pixels within and on the outline of the shape
+ *
+ *  @param Mat *contoursonly - the contours of the shape
+ *  @param vector<Point> *shapes_pixels - x/y positions within the shape
+ *  @param vector<Point> *outline_pixels - x/y positions in the outline of the shape
+ */
 void PeopleFinder::highlight_pixels(Mat *contoursonly, vector<Point> *shape_pixels, vector<Point> *outline_pixels)
 {
 	int i, j, k, m;
@@ -294,14 +293,14 @@ void PeopleFinder::highlight_pixels(Mat *contoursonly, vector<Point> *shape_pixe
 }
 
 /**
-*  @desc locates the head position by searching for the highest offset pixel
-*
-*  @param vector<Point> shape_pixels - x/y positions inside the shape
-*  @param int threshold - arbitrary offset
-*  @param int *index_head - index in the shape_pixels vector of the head pixel
-*
-*  @returns Point headnode - the head position
-*/
+ *  @desc locates the head position by searching for the highest offset pixel
+ *
+ *  @param vector<Point> shape_pixels - x/y positions inside the shape
+ *  @param int threshold - arbitrary offset
+ *  @param int *index_head - index in the shape_pixels vector of the head pixel
+ *
+ *  @returns Point headnode - the head position
+ */
 Point PeopleFinder::find_head_feature(vector<Point> shape_pixels, int threshold, int *index_head)
 {
 	int i = 0;
@@ -322,17 +321,17 @@ Point PeopleFinder::find_head_feature(vector<Point> shape_pixels, int threshold,
 }
 
 /**
-*  @desc locates the torso position by taking the largest distance between each side
-*  of the shape in the upper region of the shape
-*
-*  @param vector<Point> shape_pixels - x/y positions inside the shape
-*  @param int threshold - arbitrary offset
-*  @param Point head_feature - the head position
-*  @param int *index_head - index in the shape_pixels vector of the head pixel
-*  @param int *index_torso - index in the shape_pixels vector of the torso pixel
-*
-*  @returns Point torsonode - the torso position
-*/
+ *  @desc locates the torso position by taking the largest distance between each side
+ *  of the shape in the upper region of the shape
+ *
+ *  @param vector<Point> shape_pixels - x/y positions inside the shape
+ *  @param int threshold - arbitrary offset
+ *  @param Point head_feature - the head position
+ *  @param int *index_head - index in the shape_pixels vector of the head pixel
+ *  @param int *index_torso - index in the shape_pixels vector of the torso pixel
+ *
+ *  @returns Point torsonode - the torso position
+ */
 Point PeopleFinder::find_torso_feature(vector<Point> shape_pixels, int threshold, Point head_feature, int index_head, int *index_torso)
 {
 	int i = index_head;	//Start the initial iterations from the head pixel
@@ -384,17 +383,17 @@ Point PeopleFinder::find_torso_feature(vector<Point> shape_pixels, int threshold
 }
 
 /**
-*  @desc locates the torso position by searching for shortest distance between each side
-*  of the shape in the lower region of the shape
-*
-*  @param vector<Point> shape_pixels - x/y positions inside the shape
-*  @param int threshold - arbitrary offset
-*  @param Point torso_feature - the torso position
-*  @param index_torso - index in the shape_pixels vector of the torso pixel
-*  @param *index_waist - index in the shape_pixels vector of the waist pixel
-*
-*  @returns Point waistnode - the waist position
-*/
+ *  @desc locates the torso position by searching for shortest distance between each side
+ *  of the shape in the lower region of the shape
+ *
+ *  @param vector<Point> shape_pixels - x/y positions inside the shape
+ *  @param int threshold - arbitrary offset
+ *  @param Point torso_feature - the torso position
+ *  @param index_torso - index in the shape_pixels vector of the torso pixel
+ *  @param *index_waist - index in the shape_pixels vector of the waist pixel
+ *
+ *  @returns Point waistnode - the waist position
+ */
 Point PeopleFinder::find_waist_feature(vector<Point> shape_pixels, int threshold, Point torso_feature, int index_torso, int *index_waist)
 {
 	int i = index_torso; //Start the search from the torso pixel
@@ -448,7 +447,6 @@ Point PeopleFinder::find_waist_feature(vector<Point> shape_pixels, int threshold
 	}
 	catch (Exception e)
 	{
-		cout << "Unable to find waist feature." << endl;
 		bad_skel_flag = true;
 	}
 
@@ -459,17 +457,17 @@ Point PeopleFinder::find_waist_feature(vector<Point> shape_pixels, int threshold
 }
 
 /**
-*  @desc locates the foot position using Pythagoras to find the closest shape pixel to
-*  the corresponding corner. Assumes the feet are below the waist.
-*
-*  @param vector<Point> shape_pixels - x/y positions inside the shape
-*  @param int threshold - arbitrary offset
-*  @param Point waist_feature - the waist position
-*  @param Point corner - the corner of the image the pixel should be closest to.
-*  @param index_waist - index in the shape_pixels vector of the waist pixel
-*
-*  @returns Point footnode - the foot position
-*/
+ *  @desc locates the foot position using Pythagoras to find the closest shape pixel to
+ *  the corresponding corner. Assumes the feet are below the waist.
+ *
+ *  @param vector<Point> shape_pixels - x/y positions inside the shape
+ *  @param int threshold - arbitrary offset
+ *  @param Point waist_feature - the waist position
+ *  @param Point corner - the corner of the image the pixel should be closest to.
+ *  @param index_waist - index in the shape_pixels vector of the waist pixel
+ *
+ *  @returns Point footnode - the foot position
+ */
 Point PeopleFinder::find_foot_feature(vector<Point> shape_pixels, int threshold, Point waist_feature, Point corner, int index_waist)
 {
 	int i = index_waist;
@@ -509,18 +507,18 @@ Point PeopleFinder::find_foot_feature(vector<Point> shape_pixels, int threshold,
 }
 
 /**
-*  @desc sets the shoulder positions by taking the largest distances around the upper torso
-*  and setting them on each side of the shape
-*
-*  @param vector<Point> shape_pixels - x/y positions inside the shape
-*  @param int threshold - arbitrary offset
-*  @param Point torso_feature - the torso position
-*  @param *left_shoulder - the left shoulder position
-*  @param *right_shoulder - the right shoulder position
-*  @param int *arm_width - tenth of the distance between shoulders
-*  @param int index_torso - index in the shape_pixels vector of the torso position
-*  @param int *index_shoulders- index in the shape_pixels vector of the right shoulder position
-*/
+ *  @desc sets the shoulder positions by taking the largest distances around the upper torso
+ *  and setting them on each side of the shape
+ *
+ *  @param vector<Point> shape_pixels - x/y positions inside the shape
+ *  @param int threshold - arbitrary offset
+ *  @param Point torso_feature - the torso position
+ *  @param *left_shoulder - the left shoulder position
+ *  @param *right_shoulder - the right shoulder position
+ *  @param int *arm_width - tenth of the distance between shoulders
+ *  @param int index_torso - index in the shape_pixels vector of the torso position
+ *  @param int *index_shoulders- index in the shape_pixels vector of the right shoulder position
+ */
 void PeopleFinder::set_shoulder_positions(vector<Point> shape_pixels, int threshold, Point torso_feature, Point *left_shoulder, Point *right_shoulder, int *arm_width, int index_torso, int *index_shoulders)
 {
 	int i = index_torso;
@@ -537,6 +535,7 @@ void PeopleFinder::set_shoulder_positions(vector<Point> shape_pixels, int thresh
 	}
 
 	current_row = shape_pixels[i];
+	best_fit_node = shape_pixels[i];
 
 	while (shape_pixels[i] != Point(0, 0) && shape_pixels[i].x < lower_bound_x)
 	{
@@ -570,6 +569,15 @@ void PeopleFinder::set_shoulder_positions(vector<Point> shape_pixels, int thresh
 
 }
 
+/**
+ *  @desc calculates the distance between torso node and the waist node to find the
+ *  halfway point inbetween.
+ *
+ *  @param Point torso_feature - the torso position
+ *  @param Point waist_feature - the waist position
+ *  @param Point *halfway_node - x/y position in the middle between the torso and waist
+ *  @param double *halfway_dist - distance between the torso and waist halved
+ */
 void PeopleFinder::calc_halfway_torso_dist(Point torso_feature, Point waist_feature, Point *halfway_node, double *halfway_dist)
 {
 	int halfway_dist_x, halfway_dist_y;
@@ -585,6 +593,21 @@ void PeopleFinder::calc_halfway_torso_dist(Point torso_feature, Point waist_feat
 	*halfway_dist = sqrt(distx + disty);
 }
 
+/**
+ *  @desc finds the elbow feature by following the corresponding side of the shape for
+ *  halfway_dists length
+ *
+ *  @param vector<Point> shape_pixels - x/y positions inside the shape
+ *  @param Point torso_feature - the torso position
+ *  @param Point waist_feature - the waist position
+ *  @param Point shoulder_feature - the shoulder position (elbow connected to)
+ *  @param int *arm_width - tenth of the distance between shoulders
+ *  @param double *halfway_dist - distance between the torso and waist halved
+ *  @param Point *halfway_node - x/y position in the middle between the torso and waist
+ *  @param int index_shoulders- index in the shape_pixels vector of the right shoulder position
+ *
+ *  @returns Point elbow_node - the elbow position
+ */
 Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, Point torso_feature, Point waist_feature, Point shoulder_feature, int *arm_width, double halfway_dist, Point halfway_node, int index_shoulders)
 {
 	int i = index_shoulders;
@@ -601,7 +624,7 @@ Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, Point torso_f
 		{
 			i++;
 		}
-
+		
 		valid_pixel = Point(shape_pixels[i].x, shape_pixels[i].y + *arm_width);
 		best_fit_node = valid_pixel;
 		if (shoulder_feature.y >= torso_feature.y) //right shoudler, assume were looking for the right elbow
@@ -609,7 +632,7 @@ Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, Point torso_f
 			valid_pixel = Point(shape_pixels[i].x, shape_pixels[i - 1].y - *arm_width);
 		}
 		i++;
-
+		
 		while (shape_pixels[i] != Point(0, 0) && shape_pixels[i].x <= halfway_node.x)
 		{
 			i++;
@@ -638,7 +661,6 @@ Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, Point torso_f
 	}
 	catch (Exception e)
 	{
-		cout << "Unable to find elbow feature" << endl;
 		bad_skel_flag = true;
 	}
 
@@ -647,6 +669,23 @@ Point PeopleFinder::find_elbow_feature(vector<Point> shape_pixels, Point torso_f
 	return elbow_node;
 }
 
+/**
+ *  @desc finds the hand feature by taking the average change in direction of neighbouring
+ *  outline pixels, placing the goal node halfway dists length away in the average direction
+ *  and finding the closest pixel within the shape
+ *
+ *  @param vector<Point> shape_pixels - x/y positions inside the shape
+ *  @param vector<Point outline_pixels - x/y positions in the outline of the shape
+ *  @param Point waist_feature - the waist position
+ *  @param Point elbow_feature - the elbow position
+ *  @param int *arm_width - tenth of the distance between shoulders
+ *  @param double *halfway_dist - distance between the torso and waist halved
+ *  @param Point *halfway_node - x/y position in the middle between the torso and waist
+ *  @param Mat *contours - the contour image 
+ *  @param int index_shoulders- index in the shape_pixels vector of the right shoulder position
+ *
+ *  @param Point hand_node - the hand position
+ */
 Point PeopleFinder::find_hand_feature(vector<Point> shape_pixels, vector<Point> outline_pixels, Point waist_feature, Point elbow_feature, int *arm_width, double halfway_dist, Point halfway_node, Mat *contours, int index_shoulders)
 {
 	int i = elbow_feature.x, j = index_shoulders; //skip ahead using these idnex values to increase performance
@@ -704,7 +743,6 @@ Point PeopleFinder::find_hand_feature(vector<Point> shape_pixels, vector<Point> 
 					{
 						prev_valid_pixel = curr_pixel;
 						curr_pixel = neighbours[i];
-						//dist_iteration++;
 
 						angle = atan2(curr_pixel.y - prev_valid_pixel.y, curr_pixel.x - prev_valid_pixel.x);
 						average_angle += angle;
@@ -718,7 +756,6 @@ Point PeopleFinder::find_hand_feature(vector<Point> shape_pixels, vector<Point> 
 	}
 	catch (Exception e)
 	{
-		cout << "Unable to find hand feature." << endl;
 		bad_skel_flag = true;
 	}
 
@@ -729,7 +766,17 @@ Point PeopleFinder::find_hand_feature(vector<Point> shape_pixels, vector<Point> 
 	return hand_node;
 }
 
-Point PeopleFinder::find_closest_pixel(vector<Point> shape_pixels, Point goal_node, int x_bound, int n) //finds the closest pixel IF THE GOAL NODE IS KNOWN
+/**
+ *  @desc finds the closest pixel inside the shape if the goal node is known
+ *
+ *  @param vector<Point> shape_pixels - x/y positions inside the shape
+ *  @param Point goal_node - the position its aiming for
+ *  @param int x_bound - the lower boundary of the search space
+ *  @param int n - current iteration of the shape_pixels
+ *
+ *  @returns Point best_fit_node - position in the shape closest to the goal
+ */
+Point PeopleFinder::find_closest_pixel(vector<Point> shape_pixels, Point goal_node, int x_bound, int n) 
 {
 	Point best_fit_node;
 	double distx, disty;
@@ -759,6 +806,13 @@ Point PeopleFinder::find_closest_pixel(vector<Point> shape_pixels, Point goal_no
 	return best_fit_node;
 }
 
+/**
+ *  @desc annotates the image using the feature node vector to visualise a skeleton in the
+ *  image.
+ *
+ *  @param Mat *image - image for annotating on
+ *  @param vector<Point> nodes - the body part feature nodes
+ */
 void PeopleFinder::draw_skeleton(Mat * image, vector<Point> nodes)
 {
 	int i;
@@ -789,20 +843,37 @@ void PeopleFinder::draw_skeleton(Mat * image, vector<Point> nodes)
 	}
 	catch (Exception e)
 	{
-		cout << "Bad Skeleton, feature out of bounds." << endl;
 		bad_skel_flag = true;
 	}
 }
 
+/**
+ *  @desc checks if the given point is within the given boundaries
+ *
+ *  @param Point node - x/y position to check
+ *  @param int lower_x - topleft x position of the boundary square
+ *  @param int lower_y - topleft y position of the boundary square
+ *  @param int x_bound - bottomright x position of the boundary square
+ *  @param int y_bound - bottomright y position of the boundary square
+ * 
+ *  @returns true if within the boundary box
+ */
 bool PeopleFinder::is_within_bound(Point node, int lower_x, int lower_y, int x_bound, int y_bound)
 {
 	return (node.x >= lower_x && node.x < x_bound && node.y >= lower_y && node.y < y_bound);
 }
 
-vector<string> PeopleFinder::search_dataset_files(const string directory)
+/**
+ *  @desc searches through the training directory to get the file names of the images
+ *
+ *  @param const string directory - training directory
+ *
+ *  @returns vector<string> - all the file names of the images
+ */
+vector<string> PeopleFinder::search_dataset_files(const string directory) //Function Credit: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364418(v=vs.85).aspx
 {
 	HANDLE hFind;
-	WIN32_FIND_DATA data;				//cite Microsoft
+	WIN32_FIND_DATA data;				//Credit: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365740(v=vs.85).aspx
 	string workdirectory, tempstr;
 	vector<string> filenames(2000);
 	int i = 0;
@@ -824,7 +895,6 @@ vector<string> PeopleFinder::search_dataset_files(const string directory)
 		do 
 		{
 			filenames[i] = data.cFileName;
-			//cout << filenames[i] << endl;
 			i++;
 		} while (FindNextFile(hFind, &data));
 		FindClose(hFind);
@@ -837,6 +907,14 @@ vector<string> PeopleFinder::search_dataset_files(const string directory)
 	return filenames;
 }
 
+/**
+ *  @desc loads each image from the training directory
+ *
+ *  @param vector<string> filenames - images to load
+ *  @param const string directory - training directory
+ *
+ *  @returns vector<Mat> imgs - loaded images
+ */
 vector<Mat> PeopleFinder::load_dataset_files(vector<string> filenames, const string directory)
 {
 	vector<Mat> imgs(2000);
@@ -861,20 +939,4 @@ vector<Mat> PeopleFinder::load_dataset_files(vector<string> filenames, const str
 	}
 	cout << "Images loaded." << endl;
 	return imgs;
-}
-
-void PeopleFinder::save_image(Mat image, string folder, int i)
-{
-	string str = folder;	//TEMPORARY SAVING CODE
-	stringstream ss;
-	time_t seconds;
-
-	time(&seconds);
-	ss << seconds;
-	str.append(ss.str());
-	ss << i;
-	str.append(ss.str());
-
-	str.append(".png");
-	imwrite(str, image);
 }

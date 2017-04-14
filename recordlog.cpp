@@ -1,6 +1,27 @@
 #include "recordlog.h"
 
-void RecordLog::init_log(string videoPath)
+/**
+*	@file recordlog.cpp
+*   @desc Creates/maintains a HTML file to store information on the pedestrians detected in 
+*   a table format.
+*
+*   @param ofstream file - the output file stream
+*	@param string current_date - for naming files
+*   @param int total_records - for naming files
+*
+*	@author Alex O'Donnell
+*	@version 1.3
+*/
+
+/**
+*  @desc Initialises a HTML file within the record_log directory, setting up the page
+*  style and the table.
+*
+*  @param string videoPath - displays the path of the video file on the page
+*  @param int bgs_history - history length used for the video
+*  @param double bgs_threshold - dist2threshold used for the video
+*/
+void RecordLog::init_log(string videoPath, int bgs_history, double bgs_threshold)
 {
 	stringstream ss;
 	string path;
@@ -21,6 +42,8 @@ void RecordLog::init_log(string videoPath)
 	file << "</style>\n";
 	file << "<body>\n";
 	file << "<p>Source file: " << videoPath << "</p>\n";
+	file << "<p>BGS History Length: " << bgs_history << "</p>\n";
+	file << "<p>Distance to Threshold: " << bgs_threshold << "</p>\n";
 	file << "<table>\n";
 	file << "<tr>\n" << "<th>Timestamp</th>\n" <<
 		"<th>Source</th>\n" <<
@@ -29,6 +52,14 @@ void RecordLog::init_log(string videoPath)
 	
 }
 
+/**
+*  @desc Creates a new table row and enters information into the log.
+*
+*  @param int mill_seconds - the timestamp of the video
+*  @param Mat src_image - the source of the large shape
+*  @param Mat contour_image - the PeopleFinder interpretation
+*  @param string verdict - the classification
+*/
 void RecordLog::new_record(int mill_seconds, Mat src_image, Mat contour_image, string verdict)
 {
 	int hours, mins, secs;
@@ -55,6 +86,11 @@ void RecordLog::new_record(int mill_seconds, Mat src_image, Mat contour_image, s
 		"<td>" << verdict << "</td>\n" << "</tr>\n";
 }
 
+/**
+*  @desc Converts the current date from time_t into a readable format
+*
+*  @returns string curr_date - current date in YY:MM:DD format
+*/
 string RecordLog::get_date()
 {
 	string curr_date;
@@ -74,6 +110,14 @@ string RecordLog::get_date()
 	return curr_date;
 }
 
+/**
+*  @desc Saves the image so it can be displayed in the HTML table.
+*
+*  @param string type_name - whether the image is a source image or PeopleFinder interpretation
+*  @param Mat *image - the image to be saved
+*
+*  @returns image_path - path for the table record so it can display the image
+*/
 string RecordLog::save_image(string type_name, Mat *image)
 {
 	string image_path;

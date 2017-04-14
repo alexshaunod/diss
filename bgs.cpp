@@ -10,11 +10,11 @@
  *  @param string video_path - path for video file 
  *
  *	@author Alex O'Donnell
- *	@version 1.00
+ *	@version 1.3
  */
 
-BGS::BGS(string t_path, string v_path)
-	: training_path(t_path), video_path(v_path)
+BGS::BGS(string t_path, string v_path, int history, double thresh)
+	: training_path(t_path), video_path(v_path), bgs_history(history), bgs_threshold(thresh)
 {}
 
 /**
@@ -39,10 +39,10 @@ int BGS::run()
 	Ptr<BackgroundSubtractor> pKNN, pMOG2;
 	int fps, frame_number = 0, iteration = 0;
 
-	rlog.init_log(video_path);
+	rlog.init_log(video_path, bgs_history, bgs_threshold);
 	pf.train();
 
-	pKNN = createBackgroundSubtractorKNN(750, 400, false);
+	pKNN = createBackgroundSubtractorKNN(bgs_history, bgs_threshold, false);
 
 	capCam.open(video_path); //REFLECTIONS SUPPRESSED, BEST VIDEO FOR HIGHLIGHTING INDIVIDUAL MOVEMENT
 

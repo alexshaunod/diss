@@ -1,45 +1,31 @@
 #include "blobdetector.h"
 
+/**
+ *	@file blobdetector.cpp
+ *  @desc Receives BGS frames or ground truth images and highlights contours within the 
+ *  images. Applies convex hulls to the contours to distinguish larger shapes which are saved
+ *  and sent to the PeopleFinder.
+ *
+ *  @param vector<Mat> src_shapes - the source images of the larger shapes
+ *
+ *	@author Alex O'Donnell
+ *	@version 1.00
+ */
+
 BlobDetector::BlobDetector(vector<Mat> src_shapes)
 	: src_shapes(src_shapes)
 {}
 
-int BlobDetector::run()
-{
-	return 0;
-}
-
-void BlobDetector::examine_frame(Mat *frame, Mat *fgmask)
-{
-	int i, j, minX, maxX, minY, maxY;
-
-	minX = 108;
-	maxX = 116;
-	minY = 228;
-	maxY = 236;
-	
-	for (i = minX; i < maxX; i++)
-	{
-		for (j = minY; j<maxY; j++)
-		{
-			if ((int)fgmask->at<uchar>(i, j) >= 127) {
-				cout << "[" << (int)fgmask->at<uchar>(i, j) << "]";
-			}
-		}
-		//cout << endl;
-	}
-	//cout << endl;
-
-	rectangle(*fgmask,
-		Point(minX, minY),
-		Point(maxX, maxY),
-		Scalar(255, 255, 255),
-		1,
-		LINE_8
-	);
-	//imshow("test", fgmask);
-}
-
+/**
+ *  @desc Highlights contours and applies OpenCV's convexHull function. Using the area
+ *  of the hulls the larger shapes are extracted.
+ *
+ *  @param Mat *frame - the source frame
+ *  @param Mat *fgmask - the BGS frame
+ *  @param Mat *contoursonly - the contour frame
+ *
+ *  @returns Mat drawn_contours - contour data for drawing process
+ */
 Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly)
 {
 	hull_size = 0;
@@ -72,6 +58,18 @@ Mat BlobDetector::highlight_contours(Mat *frame, Mat *fgmask, Mat *contoursonly)
 	return drawn_contours;
 }
 
+
+/**
+ *  @desc Draws the contour information on the different frames 
+ *
+ *  @param Mat *frame - the source frame
+ *  @param Mat *drawn_contours - the contour data
+ *  @param Mat *contoursonly - visualisation of the contours
+ *  @param vector<vector<Point>> contours - x/y positions of each end of the contour lines
+ *  @param vector<Vec4i> hierachy - information on image topology
+ *  @param vector<vector<Point>> - x/y positions of each end of the hull
+ *  @param int i - current contour
+ */
 void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, Mat *contoursonly, vector<vector<Point>> contours, vector<Vec4i> hierarchy, vector<vector<Point>> hull, int i)
 {
 	drawContours(*drawn_contours,
@@ -103,6 +101,20 @@ void BlobDetector::draw_annotations(Mat *frame, Mat *drawn_contours, Mat *contou
 		Point());
 }
 
+
+/**
+ *  @desc Examines the shapes within the convex hulls, saves them as their own images and
+ *  resizes them to make them compatible with PeopleFinder. Reapplies the contours after resizing 
+ *  to prevent distortion
+ *
+ *  @param Mat *src_image - the source frame
+ *  @param Mat *filtered_mask - the BGS frame
+ *  @param vector<vector<Point>> hull - x/y positions of each end of the hull
+ *  @param int hullsize - number of hulls in the current image
+ *  @param int edge_space - space between the shape and the edge of the image
+ *
+ *  @returns vector<Mat> shapes - larger shapes
+ */
 vector<Mat> BlobDetector::get_large_shapes(Mat *src_image, Mat *filtered_mask, vector<vector<Point>> hull, int hullsize, int edge_space)
 {
 	vector<Mat> shapes(30), bg_shapes(30);

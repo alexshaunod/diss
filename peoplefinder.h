@@ -58,7 +58,6 @@ class PeopleFinder
 
 		vector<string> search_dataset_files(const string directory);
 		vector<Mat> load_dataset_files(vector<string> filenames, const string directory);
-		void save_image(Mat image, string folder, int i);
 };
 
 #endif
