@@ -25,8 +25,8 @@ using namespace std;
 int main()
 {	
 	string response;
-	string training_path = "DataSets/PedCut2013/data/completeData/left_groundtruth/*.*";
-	string video_path = "DataSets/CVLAB/campus4-c1.avi";
+	string training_path = "training/PedCut2013/data/completeData/left_groundtruth/*.*";
+	string video_path = "videos/CVLAB/campus4-c1.avi";
 	int bgs_history = 750;
 	double bgs_threshold = 500;
 	cout << "---Welcome to AutoSurvCV. Please type an option from the menu---" << endl;

@@ -45,7 +45,8 @@ void RecordLog::init_log(string videoPath, int bgs_history, double bgs_threshold
 	file << "<p>BGS History Length: " << bgs_history << "</p>\n";
 	file << "<p>Distance to Threshold: " << bgs_threshold << "</p>\n";
 	file << "<table>\n";
-	file << "<tr>\n" << "<th>Timestamp</th>\n" <<
+	file << "<tr>\n" << "<th>Frame Number</th>\n"
+		"<th>Timestamp</th>\n" <<
 		"<th>Source</th>\n" <<
 		"<th>Analysis</th>\n" << 
 		"<th>Interpretation</th>\n" << "</tr>\n";
@@ -55,12 +56,13 @@ void RecordLog::init_log(string videoPath, int bgs_history, double bgs_threshold
 /**
 *  @desc Creates a new table row and enters information into the log.
 *
+*  @param int frame_num - number of frames into the video
 *  @param int mill_seconds - the timestamp of the video
 *  @param Mat src_image - the source of the large shape
 *  @param Mat contour_image - the PeopleFinder interpretation
 *  @param string verdict - the classification
 */
-void RecordLog::new_record(int mill_seconds, Mat src_image, Mat contour_image, string verdict)
+void RecordLog::new_record(int frame_num, int mill_seconds, Mat src_image, Mat contour_image, string verdict)
 {
 	int hours, mins, secs;
 	string timestamp, src_image_path, con_image_path;
@@ -80,7 +82,8 @@ void RecordLog::new_record(int mill_seconds, Mat src_image, Mat contour_image, s
 	src_image_path = save_image("_SRC_IMAGE_", &src_image);
 	con_image_path = save_image("_CNTR_IMAGE_", &contour_image);
 
-	file << "<tr>\n" << "<td>" << timestamp << "</td>\n" << 
+	file << "<tr>\n" <<  "<td>" << frame_num << "</td>" <<
+		"<td>" << timestamp << "</td>\n" << 
 		"<td><img src = \"" << src_image_path << "\"></td>\n" << 
 		"<td><img src = \"" << con_image_path << "\"></td>\n" <<
 		"<td>" << verdict << "</td>\n" << "</tr>\n";

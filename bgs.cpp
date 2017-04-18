@@ -63,7 +63,7 @@ int BGS::run()
 
 			if (!frame.empty())
 			{
-				frame_number++;
+				frame_number = capCam.get(CV_CAP_PROP_POS_FRAMES);
 				cvtColor(frame, frame2, CV_BGRA2GRAY);
 				pKNN->apply(frame2, fgMaskKNN);
 				filteredMask = filter_noise(&fgMaskKNN);
@@ -80,7 +80,7 @@ int BGS::run()
 					iteration++;
 					large_shapes = bd.get_large_shapes(&frame, &filteredMask, bd.get_hull_list(), bd.get_hull_size(), 10);
 					pf.test(&large_shapes);
-					run_frame_analysis(capCam.get(CV_CAP_PROP_POS_MSEC), bd.get_src_shapes(), large_shapes, pf.get_verdicts());
+					run_frame_analysis(capCam.get(CV_CAP_PROP_POS_FRAMES), capCam.get(CV_CAP_PROP_POS_MSEC), bd.get_src_shapes(), large_shapes, pf.get_verdicts());
 				}
 			}
 			else
@@ -101,6 +101,7 @@ int BGS::run()
 /**
  *  @desc Enters a new record into the record log
  *
+ 8  @param int frame_num - number of frames into the video
  *  @param int milliseconds - the timestamp of the video 
  *  @param vector<Mat> src_shapes - the source of the contour shape
  *  @param vector<Mat> large_shapes - the PeopleFinder interpretation of the shape
@@ -108,13 +109,13 @@ int BGS::run()
  *
  *  @returns 0
  */
-void BGS::run_frame_analysis(int milliseconds, vector<Mat> src_shapes, vector<Mat> large_shapes, vector<string> verdicts)
+void BGS::run_frame_analysis(int frame_num, int milliseconds, vector<Mat> src_shapes, vector<Mat> large_shapes, vector<string> verdicts)
 {
 	int i = 0;
 
 	while (large_shapes[i].rows != 0)
 	{
-		rlog.new_record(milliseconds, src_shapes[i], large_shapes[i], verdicts[i]);
+		rlog.new_record(frame_num, milliseconds, src_shapes[i], large_shapes[i], verdicts[i]);
 		i++;
 	}
 }

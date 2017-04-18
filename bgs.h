@@ -25,7 +25,7 @@ class BGS
 	public :
 		BGS(string t_path, string v_path, int history, double thresh);
 		int run();
-		void run_frame_analysis(int milliseconds, vector<Mat> src_shapes, vector<Mat> large_shapes, vector<string> verdicts);
+		void run_frame_analysis(int frame_num, int milliseconds, vector<Mat> src_shapes, vector<Mat> large_shapes, vector<string> verdicts);
 		Mat filter_noise(Mat *fgmask);
 		Mat erode_first(Mat *srcimg, Mat *element);
 		Mat dilate_first(Mat *srcimg, Mat *element);
