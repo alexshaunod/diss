@@ -1,10 +1,2 @@
-﻿  Microsoft (R) C/C++ Optimizing Compiler Version 19.00.24213.1 for x64
-  Copyright (C) Microsoft Corporation.  All rights reserved.
-  
-  cl /c /ZI /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt peoplefinder.cpp
-  
-  peoplefinder.cpp
-c:\majorproject\autosurvcv\peoplefinder.cpp(763): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\majorproject\autosurvcv\peoplefinder.cpp(764): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-  AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.exe
+﻿  AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.exe
   AutoSurvCV.vcxproj -> C:\MajorProject\AutoSurvCV\x64\Debug\AutoSurvCV.pdb (Partial PDB)
