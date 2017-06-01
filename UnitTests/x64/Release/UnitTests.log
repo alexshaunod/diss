@@ -1,0 +1,13 @@
+﻿LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
+AutoSurvCV.lib(peoplefinder.obj) : error LNK2038: mismatch detected for '_ITERATOR_DEBUG_LEVEL': value '2' doesn't match value '0' in stdafx.obj
+AutoSurvCV.lib(peoplefinder.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MD_DynamicRelease' in stdafx.obj
+AutoSurvCV.lib(peoplefinder.obj) : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:ICF' specification
+AutoSurvCV.lib(blobdetector.obj) : error LNK2038: mismatch detected for '_ITERATOR_DEBUG_LEVEL': value '2' doesn't match value '0' in stdafx.obj
+AutoSurvCV.lib(blobdetector.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MD_DynamicRelease' in stdafx.obj
+     Creating library C:\AutoSurvCV\x64\Release\UnitTests.lib and object C:\AutoSurvCV\x64\Release\UnitTests.exp
+LINK : warning LNK4098: defaultlib 'MSVCRTD' conflicts with use of other libs; use /NODEFAULTLIB:library
+AutoSurvCV.lib(peoplefinder.obj) : error LNK2001: unresolved external symbol __imp__invalid_parameter
+AutoSurvCV.lib(blobdetector.obj) : error LNK2001: unresolved external symbol __imp__invalid_parameter
+AutoSurvCV.lib(peoplefinder.obj) : error LNK2001: unresolved external symbol __imp__CrtDbgReportW
+AutoSurvCV.lib(blobdetector.obj) : error LNK2001: unresolved external symbol __imp__CrtDbgReportW
+C:\AutoSurvCV\x64\Release\UnitTests.dll : fatal error LNK1120: 2 unresolved externals
